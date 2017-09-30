@@ -1,0 +1,16 @@
+---
+connectionFactory:
+  class: org.apache.activemq.ActiveMQConnectionFactory
+  properties:
+    brokerURL: vm://embedded-broker?create=false
+
+queues:
+  - INBOUND.QUEUE
+
+stubs:
+  - description: a description
+    matchers:
+      - type: BodyMatcher
+        body: this is the body to match
+    body: this is the reply body
+    delay: 1
