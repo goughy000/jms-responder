@@ -18,7 +18,7 @@ final class MessageHandler implements Runnable {
 
     private final Session session;
     private final String queueName;
-    private final ResponseRepository repository;;
+    private final ResponseRepository repository;
 
     MessageHandler(Session session, String queueName, ResponseRepository repository) {
         this.session = session;
@@ -68,67 +68,69 @@ final class MessageHandler implements Runnable {
         LOG.info("Received message {}", message);
 
         try {
-            if (message instanceof TextMessage) {
-                TextMessage textMessage = (TextMessage) message;
-
-                // Find a stub
-                Queue queue = (Queue) textMessage.getJMSDestination();
-
-                RequestInfo requestInfo = RequestInfo.newBuilder()
-                        .withBody(textMessage.getText())
-                        .withQueueName(queue.getQueueName())
-                        .build();
-
-                LOG.trace("Looking for a match");
-                Optional<StubbedResponse> match = repository.findMatch(requestInfo);
-
-                // Did we find one?
-                if (match.isPresent()) {
-                    StubbedResponse response = match.get();
-                    LOG.debug("Found match {}", response);
-
-                    // Work out correlation id for the reply
-                    String correlationId = textMessage.getJMSCorrelationID();
-                    if (null == correlationId) {
-                        LOG.debug("Falling back to the MessageID for CorrelationID");
-                        correlationId = textMessage.getJMSMessageID();
-                    }
-                    LOG.trace("Reply CorrelationID = {}", correlationId);
-
-                    // Where are we sending?
-                    Destination replyTo = textMessage.getJMSReplyTo();
-                    LOG.debug("ReplyTo = {}", replyTo);
-
-                    // Build the reply message
-                    TextMessage reply = session.createTextMessage();
-                    reply.setJMSDestination(replyTo);
-                    reply.setText(response.getBody());
-                    reply.setJMSCorrelationID(correlationId);
-
-                    // Sleep
-                    int delay = response.getDelay();
-                    if (delay > 0) {
-                        LOG.debug("Sleeping for {}ms", delay);
-                        Thread.sleep(delay);
-                    }
-
-                    // Send!
-                    MessageProducer producer = null;
-                    try {
-                        producer = session.createProducer(replyTo);
-                        LOG.info("Sending reply");
-                        producer.send(reply);
-                        LOG.debug("Reply sent");
-                    } finally {
-                        if (null != producer) {
-                            producer.close();
-                        }
-                    }
-                } else {
-                    LOG.warn("No match found, not sending a reply");
-                }
-            } else {
+            if (!(message instanceof TextMessage)) {
                 LOG.info("Ignoring message (Not TextMessage, is {})", message.getClass());
+                return;
+            }
+
+            TextMessage textMessage = (TextMessage) message;
+
+            // Find a stub
+            Queue queue = (Queue) textMessage.getJMSDestination();
+
+            RequestInfo requestInfo = RequestInfo.newBuilder()
+                    .withBody(textMessage.getText())
+                    .withQueueName(queue.getQueueName())
+                    .build();
+
+            LOG.trace("Looking for a match");
+            Optional<StubbedResponse> match = repository.findMatch(requestInfo);
+
+            // Did we find one?
+            if (!match.isPresent()) {
+                LOG.warn("No match found, not sending a reply");
+                return;
+            }
+
+            StubbedResponse response = match.get();
+            LOG.debug("Found match {}", response);
+
+            // Work out correlation id for the reply
+            String correlationId = textMessage.getJMSCorrelationID();
+            if (null == correlationId) {
+                LOG.debug("Falling back to the MessageID for CorrelationID");
+                correlationId = textMessage.getJMSMessageID();
+            }
+            LOG.trace("Reply CorrelationID = {}", correlationId);
+
+            // Where are we sending?
+            Destination replyTo = textMessage.getJMSReplyTo();
+            LOG.debug("ReplyTo = {}", replyTo);
+
+            // Build the reply message
+            TextMessage reply = session.createTextMessage();
+            reply.setJMSDestination(replyTo);
+            reply.setText(response.getBody());
+            reply.setJMSCorrelationID(correlationId);
+
+            // Sleep
+            int delay = response.getDelay();
+            if (delay > 0) {
+                LOG.debug("Sleeping for {}ms", delay);
+                Thread.sleep(delay);
+            }
+
+            // Send!
+            MessageProducer producer = null;
+            try {
+                producer = session.createProducer(replyTo);
+                LOG.info("Sending reply");
+                producer.send(reply);
+                LOG.debug("Reply sent");
+            } finally {
+                if (null != producer) {
+                    producer.close();
+                }
             }
 
         } catch (InterruptedException | JMSException e) {
