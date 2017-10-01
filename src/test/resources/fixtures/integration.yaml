@@ -1,0 +1,33 @@
+---
+connectionFactory:
+  class: org.apache.activemq.ActiveMQConnectionFactory
+  properties:
+    brokerURL: vm://embedded-broker?create=false
+
+queues:
+  - INBOUND.QUEUE
+
+stubs:
+  - description: Body Matcher = 'Hello'
+    matchers:
+      - type: body
+        body: Hello
+    body: Hello back to you!
+    delay: 1
+
+  - description: Body Matcher = 'wibble'
+    matchers:
+      - type: body
+        body: wibble
+    body: wobble
+
+  - description: "(body = 'wobble') && (queue = INBOUND.QUEUE)"
+    matchers:
+      - type: body
+        body: wobble
+      - type: queue
+        queue: INBOUND.QUEUE
+    body: queue matched
+
+  - description: Default fallback
+    body: the default
