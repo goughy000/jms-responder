@@ -42,7 +42,6 @@ final class MessageHandler implements Runnable {
                         onMessage(request);
                     }
                 } catch (IllegalStateException ise) {
-                    LOG.info("Shutting down");
                     break;
                 } catch (JMSException ex) {
                     if (ex.getCause() instanceof InterruptedException) {
@@ -51,6 +50,8 @@ final class MessageHandler implements Runnable {
                     LOG.warn("Error in message loop, {}", ex.getMessage());
                 }
             }
+
+            LOG.info("Shutting down");
 
         } catch (JMSException ex) {
             LOG.error("Error in thread startup", ex);
