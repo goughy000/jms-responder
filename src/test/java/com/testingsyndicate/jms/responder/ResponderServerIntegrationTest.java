@@ -2,102 +2,139 @@ package com.testingsyndicate.jms.responder;
 
 import com.testingsyndicate.jms.responder.model.config.FileConfigTest;
 import org.apache.activemq.junit.EmbeddedActiveMQBroker;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.jms.*;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponderServerIntegrationTest {
 
-    @Rule
-    public EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
+    private static Connection connection;
+    private static Session session;
+    private static MessageProducer producer;
+    private static MessageConsumer consumer;
+    private static Destination sendTo;
+    private static Destination replyTo;
+
+    private ResponderServer sut;
+
+    @ClassRule
+    public static EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
+
+    @BeforeClass
+    public static void setUp() throws JMSException {
+        ConnectionFactory connectionFactory = broker.createConnectionFactory();
+        connection = connectionFactory.createConnection();
+        connection.start();
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+        sendTo = session.createQueue("INBOUND.QUEUE");
+        replyTo = session.createQueue("REPLY.QUEUE");
+
+        producer = session.createProducer(sendTo);
+        consumer = session.createConsumer(replyTo);
+    }
+
+    @Before
+    public void before() throws Exception {
+        InputStream config = fixture("integration.yaml");
+        sut = ResponderServer.fromConfig(config);
+        sut.start();
+    }
+
+    @After
+    public void after() throws Exception {
+        sut.close();
+    }
+
+    @AfterClass
+    public static void tearDown() throws JMSException {
+        if (null != consumer) {
+            consumer.close();
+        }
+
+        if (null != producer) {
+            producer.close();
+        }
+
+        if (null != session) {
+            session.close();
+        }
+
+        if (null != connection) {
+            connection.close();
+        }
+    }
 
     @Test
-    public void integrationTest() throws Exception {
-        // start up
-        ConnectionFactory connectionFactory = broker.createConnectionFactory();
-        InputStream config = fixture("integration.yaml");
-        ResponderServer server = ResponderServer.fromConfig(config);
-        server.start();
+    public void simpleBodyMatch() throws Exception {
+        // given
+        String correlationId = UUID.randomUUID().toString();
 
-        // Open up
-        Connection connection = null;
-        Session session = null;
-        MessageProducer producer = null;
-        MessageConsumer consumer = null;
-        try {
-            connection = connectionFactory.createConnection();
-            connection.start();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        // when
+        TextMessage actual = exchangeMessage(correlationId, "Hello");
 
-            Destination sendTo = session.createQueue("INBOUND.QUEUE");
-            Destination replyTo = session.createQueue("REPLY.QUEUE");
+        // then
+        assertThat(actual.getText()).isEqualTo("Hello back to you!");
+        assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
 
-            List<TestData> data = Arrays.asList(
-                    new TestData("Hello", "Hello back to you!"),
-                    new TestData("wibble", "wobble"),
-                    new TestData("wobble", "queue matched")
-            );
+    @Test
+    public void missesFirstStubToMatchSecond() throws Exception {
+        // given
+        String correlationId = UUID.randomUUID().toString();
 
-            producer = session.createProducer(sendTo);
-            consumer = session.createConsumer(replyTo);
+        // when
+        TextMessage actual = exchangeMessage(correlationId, "wibble");
 
-            for (TestData td : data) {
+        // then
+        assertThat(actual.getText()).isEqualTo("wobble");
+        assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
 
-                String correlationId = UUID.randomUUID().toString();
+    @Test
+    public void matchesOnBodyAndQueue() throws Exception {
+        // given
+        String correlationId = UUID.randomUUID().toString();
 
-                // Send message
-                TextMessage message = session.createTextMessage(td.request);
-                message.setJMSDestination(sendTo);
-                message.setJMSCorrelationID(correlationId);
-                message.setJMSReplyTo(replyTo);
-                producer.send(message);
+        // when
+        TextMessage actual = exchangeMessage(correlationId, "wobble");
 
-                // Read reply
-                TextMessage reply = (TextMessage) consumer.receive(5000);
-                assertThat(reply.getText()).isEqualTo(td.response);
-                assertThat(reply.getJMSCorrelationID()).isEqualTo(correlationId);
-            }
+        // then
+        assertThat(actual.getText()).isEqualTo("queue matched");
+        assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
 
-        } finally {
-            server.close();
+    @Test
+    public void fallsBackToDefault() throws Exception {
+        // given
+        String correlationId = UUID.randomUUID().toString();
 
-            if (null != consumer) {
-                consumer.close();
-            }
+        // when
+        TextMessage actual = exchangeMessage(correlationId, "any old rubbish");
 
-            if (null != producer) {
-                producer.close();
-            }
+        // then
+        assertThat(actual.getText()).isEqualTo("the default");
+        assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
 
-            if (null != session) {
-                session.close();
-            }
+    private static TextMessage exchangeMessage(String correlationId, String text) throws JMSException {
+        // Send
+        TextMessage request = session.createTextMessage(text);
+        request.setJMSDestination(sendTo);
+        request.setJMSCorrelationID(correlationId);
+        request.setJMSReplyTo(replyTo);
+        producer.send(request);
 
-            if (null != connection) {
-                connection.close();
-            }
-        }
+        // Receive
+        return (TextMessage) consumer.receive(5000);
     }
 
     private static InputStream fixture(String path) {
         return FileConfigTest.class.getClassLoader().getResourceAsStream("fixtures/" + path);
-    }
-
-    private static final class TestData {
-        private String request;
-        private String response;
-
-        public TestData(String request, String response) {
-            this.request = request;
-            this.response = response;
-        }
     }
 
 }

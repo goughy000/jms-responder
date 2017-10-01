@@ -96,15 +96,16 @@ public class FixedResponseRepositoryTest {
     }
 
     @Test
-    public void returnsEmptyIfEmptyMatchers() {
+    public void returnsResponseIfEmptyMatchers() {
         // given
-        ResponseRepository sut = repo(response());
+        StubbedResponse response = response();
+        ResponseRepository sut = repo(response);
 
         // when
         Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
 
         // then
-        assertThat(actual).isEmpty();
+        assertThat(actual).contains(response);
     }
 
     private static StubbedResponse response(Matcher... matchers) {

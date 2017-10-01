@@ -45,6 +45,9 @@ final class MessageHandler implements Runnable {
                     LOG.info("Shutting down");
                     break;
                 } catch (JMSException ex) {
+                    if (ex.getCause() instanceof InterruptedException) {
+                        break;
+                    }
                     LOG.warn("Error in message loop, {}", ex.getMessage());
                 }
             }
@@ -57,7 +60,7 @@ final class MessageHandler implements Runnable {
                 try {
                     consumer.close();
                 } catch (JMSException e) {
-                    LOG.error("Could not close consumer", e);
+                    LOG.error("Could not close consumer");
                 }
             }
         }

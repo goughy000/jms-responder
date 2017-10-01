@@ -37,7 +37,7 @@ public final class FixedResponseRepository implements ResponseRepository {
 
     private static boolean matches(StubbedResponse response, RequestInfo requestInfo) {
         List<Matcher> matchers = response.getMatchers();
-        return !(null == matchers || matchers.isEmpty()) && matchers.stream().allMatch(m -> m.matches(requestInfo));
+        return null == matchers || matchers.stream().allMatch(m -> m.matches(requestInfo));
     }
 
 }

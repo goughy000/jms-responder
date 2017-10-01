@@ -28,3 +28,6 @@ stubs:
       - type: queue
         queue: INBOUND.QUEUE
     body: queue matched
+
+  - description: Default fallback
+    body: the default
