@@ -7,7 +7,7 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class AllMatcher implements Matcher {
+public final class AllMatcher implements Matcher {
 
     private final Collection<Matcher> matchers;
 
