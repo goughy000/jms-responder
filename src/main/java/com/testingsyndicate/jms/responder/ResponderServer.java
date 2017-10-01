@@ -40,7 +40,12 @@ public final class ResponderServer implements AutoCloseable {
         connectionFactory = builder.connectionFactory;
         queueNames = builder.queueNames;
         repository = builder.repository;
-        executor = builder.executor;
+
+        if (null == builder.executor) {
+            executor = Executors.newCachedThreadPool();
+        } else {
+            executor = builder.executor;
+        }
         sessions = new ArrayList<>();
     }
 
@@ -88,8 +93,8 @@ public final class ResponderServer implements AutoCloseable {
         FileConfig fileConfig = MAPPER.readValue(config, FileConfig.class);
 
         ConnectionFactoryConfig cfc = fileConfig.getConnectionFactory();
-        LOG.info("Initializing {}", cfc);
         Class clazz = Class.forName(cfc.getClazz());
+        LOG.info("Initializing {}", clazz);
         ConnectionFactory connectionFactory = (ConnectionFactory) clazz.newInstance();
         for (Map.Entry<String, String> prop : cfc.getProperties().entrySet()) {
             LOG.info("Setting {}", prop.getKey());
@@ -98,7 +103,6 @@ public final class ResponderServer implements AutoCloseable {
 
         return newBuilder()
                 .withQueueNames(fileConfig.getQueues())
-                .withExecutor(Executors.newFixedThreadPool(fileConfig.getQueues().size()))
                 .withRepository(new FixedResponseRepository(fileConfig.getStubs()))
                 .withConnectionFactory(connectionFactory)
                 .build();

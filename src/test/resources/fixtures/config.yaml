@@ -10,7 +10,7 @@ queues:
 stubs:
   - description: a description
     matchers:
-      - type: BodyMatcher
+      - type: body
         body: this is the body to match
     body: this is the reply body
     delay: 1

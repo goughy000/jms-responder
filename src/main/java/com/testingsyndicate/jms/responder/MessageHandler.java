@@ -20,7 +20,7 @@ final class MessageHandler implements Runnable {
     private final String queueName;
     private final ResponseRepository repository;;
 
-    public MessageHandler(Session session, String queueName, ResponseRepository repository) {
+    MessageHandler(Session session, String queueName, ResponseRepository repository) {
         this.session = session;
         this.queueName = queueName;
         this.repository = repository;

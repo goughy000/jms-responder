@@ -10,7 +10,7 @@ public class BodyMatcherTest {
     @Test
     public void matchesWhenEqual() {
         // given
-        BodyMatcher sut = new BodyMatcher("wibble");
+        BodyMatcher sut = BodyMatcher.newBuilder().withBody("wibble").build();
 
         RequestInfo requestInfo = requestInfoWithBody("wibble");
 
@@ -23,8 +23,8 @@ public class BodyMatcherTest {
 
     @Test
     public void doesntMatchWhenDifferent() {
-        // Given
-        BodyMatcher sut = new BodyMatcher("wibble");
+        // given
+        BodyMatcher sut = BodyMatcher.newBuilder().withBody("wibble").build();
         RequestInfo requestInfo = requestInfoWithBody("wobble");
 
         // when
@@ -36,9 +36,22 @@ public class BodyMatcherTest {
 
     @Test
     public void matchesNulls() {
-        // Given
-        BodyMatcher sut = new BodyMatcher(null);
+        // given
+        BodyMatcher sut = BodyMatcher.newBuilder().withBody(null).build();
         RequestInfo requestInfo = requestInfoWithBody(null);
+
+        // when
+        boolean actual = sut.matches(requestInfo);
+
+        // then
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    public void matchesWhenTrimmed() {
+        // given
+        BodyMatcher sut = BodyMatcher.newBuilder().withBody("hi").withTrim(true).build();
+        RequestInfo requestInfo = requestInfoWithBody("  hi   ");
 
         // when
         boolean actual = sut.matches(requestInfo);

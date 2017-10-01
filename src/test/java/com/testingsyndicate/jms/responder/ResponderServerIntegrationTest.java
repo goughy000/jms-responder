@@ -7,25 +7,25 @@ import org.junit.Test;
 
 import javax.jms.*;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResponderServerTest {
+public class ResponderServerIntegrationTest {
 
     @Rule
     public EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
 
     @Test
-    public void buildsResponderServer() throws Exception {
+    public void integrationTest() throws Exception {
         // start up
         ConnectionFactory connectionFactory = broker.createConnectionFactory();
         InputStream config = fixture("integration.yaml");
         ResponderServer server = ResponderServer.fromConfig(config);
         server.start();
 
-
-        String correlationId = UUID.randomUUID().toString();
         // Open up
         Connection connection = null;
         Session session = null;
@@ -39,20 +39,31 @@ public class ResponderServerTest {
             Destination sendTo = session.createQueue("INBOUND.QUEUE");
             Destination replyTo = session.createQueue("REPLY.QUEUE");
 
-            // Send message
-            TextMessage message = session.createTextMessage("Hello");
-            message.setJMSDestination(sendTo);
-            message.setJMSCorrelationID(correlationId);
-            message.setJMSReplyTo(replyTo);
+            List<TestData> data = Arrays.asList(
+                    new TestData("Hello", "Hello back to you!"),
+                    new TestData("wibble", "wobble"),
+                    new TestData("wobble", "queue matched")
+            );
 
             producer = session.createProducer(sendTo);
-            producer.send(message);
-
-            // Read reply
             consumer = session.createConsumer(replyTo);
-            TextMessage reply = (TextMessage) consumer.receive(5000);
-            assertThat(reply.getText()).isEqualTo("Hello back to you!");
-            assertThat(reply.getJMSCorrelationID()).isEqualTo(correlationId);
+
+            for (TestData td : data) {
+
+                String correlationId = UUID.randomUUID().toString();
+
+                // Send message
+                TextMessage message = session.createTextMessage(td.request);
+                message.setJMSDestination(sendTo);
+                message.setJMSCorrelationID(correlationId);
+                message.setJMSReplyTo(replyTo);
+                producer.send(message);
+
+                // Read reply
+                TextMessage reply = (TextMessage) consumer.receive(5000);
+                assertThat(reply.getText()).isEqualTo(td.response);
+                assertThat(reply.getJMSCorrelationID()).isEqualTo(correlationId);
+            }
 
         } finally {
             server.close();
@@ -77,6 +88,16 @@ public class ResponderServerTest {
 
     private static InputStream fixture(String path) {
         return FileConfigTest.class.getClassLoader().getResourceAsStream("fixtures/" + path);
+    }
+
+    private static final class TestData {
+        private String request;
+        private String response;
+
+        public TestData(String request, String response) {
+            this.request = request;
+            this.response = response;
+        }
     }
 
 }

@@ -9,8 +9,10 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
               property = "type")
 @JsonSubTypes(
         {
-                @JsonSubTypes.Type(value = BodyMatcher.class),
-                @JsonSubTypes.Type(value = QueueMatcher.class)
+                @JsonSubTypes.Type(value = BodyMatcher.class, name = "body"),
+                @JsonSubTypes.Type(value = QueueMatcher.class, name = "queue"),
+                @JsonSubTypes.Type(value = AnyMatcher.class, name = "any"),
+                @JsonSubTypes.Type(value = AllMatcher.class, name = "all")
         }
 )
 public interface Matcher {

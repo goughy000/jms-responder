@@ -8,9 +8,23 @@ queues:
   - INBOUND.QUEUE
 
 stubs:
-  - description: a description
+  - description: Body Matcher = 'Hello'
     matchers:
-      - type: BodyMatcher
+      - type: body
         body: Hello
     body: Hello back to you!
     delay: 1
+
+  - description: Body Matcher = 'wibble'
+    matchers:
+      - type: body
+        body: wibble
+    body: wobble
+
+  - description: "(body = 'wobble') && (queue = INBOUND.QUEUE)"
+    matchers:
+      - type: body
+        body: wobble
+      - type: queue
+        queue: INBOUND.QUEUE
+    body: queue matched
