@@ -69,7 +69,7 @@ final class MessageHandler implements Runnable {
 
     void onMessage(Message message) {
 
-        LOG.info("Received message {}", message);
+        LOG.debug("Received message {}", message);
 
         try {
             if (!(message instanceof TextMessage)) {
@@ -79,14 +79,21 @@ final class MessageHandler implements Runnable {
 
             TextMessage textMessage = (TextMessage) message;
 
-            // Find a stub
+            // Grab info
             Queue queue = (Queue) textMessage.getJMSDestination();
+            String queueName = queue.getQueueName();
+            String body = textMessage.getText();
+            String correlationId = textMessage.getJMSCorrelationID();
 
+            // Find a stub
             RequestInfo requestInfo = RequestInfo.newBuilder()
-                    .withBody(textMessage.getText())
-                    .withQueueName(queue.getQueueName())
-                    .withCorrelationId(textMessage.getJMSCorrelationID())
+                    .withBody(body)
+                    .withQueueName(queueName)
+                    .withCorrelationId(correlationId)
                     .build();
+
+            LOG.info(">>> (CorrelationId={}) (Queue={})", correlationId, queueName);
+            LOG.trace(">>> {}", body);
 
             LOG.trace("Looking for a match");
             Optional<StubbedResponse> match = repository.findMatch(requestInfo);
@@ -98,19 +105,20 @@ final class MessageHandler implements Runnable {
             }
 
             StubbedResponse response = match.get();
-            LOG.debug("Found match {}", response);
+            LOG.trace("Found match {}", response);
 
             // Work out correlation id for the reply
-            String correlationId = textMessage.getJMSCorrelationID();
             if (null == correlationId) {
                 LOG.debug("Falling back to the MessageID for CorrelationID");
                 correlationId = textMessage.getJMSMessageID();
             }
-            LOG.trace("Reply CorrelationID = {}", correlationId);
 
             // Where are we sending?
-            Destination replyTo = textMessage.getJMSReplyTo();
-            LOG.debug("ReplyTo = {}", replyTo);
+            Queue replyTo = (Queue)textMessage.getJMSReplyTo();
+            if (null == replyTo) {
+                LOG.warn("No reply queue, not sending a reply");
+                return;
+            }
 
             // Build the reply message
             TextMessage reply = session.createTextMessage();
@@ -129,7 +137,9 @@ final class MessageHandler implements Runnable {
             MessageProducer producer = null;
             try {
                 producer = session.createProducer(replyTo);
-                LOG.info("Sending reply");
+                LOG.info("<<< (CorrelationId={}) (Queue={}) (Description={})",
+                        correlationId, replyTo.getQueueName(), response.getDescription());
+                LOG.trace("<<< {}", response.getBody());
                 producer.send(reply);
                 LOG.debug("Reply sent");
             } finally {
