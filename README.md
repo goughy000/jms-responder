@@ -1,6 +1,6 @@
 # JMS Responder
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.testingsyndicate/jms-responder.svg)](https://mvnrepository.com/artifact/com.testingsyndicate/jms-responder)
+[![Maven Central](https://img.shields.io/maven-central/v/com.testingsyndicate/jms-responder-core.svg)](https://mvnrepository.com/artifact/com.testingsyndicate/jms-responder-core)
 
 ## A stubbing utility for JMS Request/Reply
 
