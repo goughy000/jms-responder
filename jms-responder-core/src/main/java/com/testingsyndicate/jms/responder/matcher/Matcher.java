@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.matcher;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
@@ -9,10 +10,11 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
               property = "type")
 @JsonSubTypes(
         {
-                @JsonSubTypes.Type(value = BodyMatcher.class, name = "body"),
-                @JsonSubTypes.Type(value = QueueMatcher.class, name = "queue"),
-                @JsonSubTypes.Type(value = AnyMatcher.class, name = "any"),
-                @JsonSubTypes.Type(value = AllMatcher.class, name = "all")
+                @Type(value = BodyMatcher.class, name = "body"),
+                @Type(value = QueueMatcher.class, name = "queue"),
+                @Type(value = XmlMatcher.class, name = "xml"),
+                @Type(value = AnyMatcher.class, name = "any"),
+                @Type(value = AllMatcher.class, name = "all")
         }
 )
 public interface Matcher {
