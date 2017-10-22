@@ -1,5 +1,7 @@
 # JMS Responder
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.testingsyndicate/jms-responder.svg)](https://mvnrepository.com/artifact/com.testingsyndicate/jms-responder)
+
 ## A stubbing utility for JMS Request/Reply
 
 ### Introduction
@@ -123,4 +125,192 @@ ResponderServer server = ResponderServer.newBuilder()
                 .build();
 
 server.start();
+```
+
+### Maven plugin
+For integration testing, you can boot JMS Responder as part of the maven lifecycle
+
+Here is an example of starting ActiveMQ and JMS Responder for the integration test phase, and tearing it all down afterwards
+
+#### src/test/resources/responder.yaml
+
+```yaml
+---
+connectionFactory:
+  class: org.apache.activemq.ActiveMQConnectionFactory
+  properties:
+    brokerURL: tcp://localhost:61616
+
+queues:
+  - INBOUND.QUEUE
+
+stubs:
+  - #...
+```
+
+#### pom.xml
+```xml
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.testingsyndicate</groupId>
+  <artifactId>plugin-test</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Example</name>
+
+  <properties>
+    <activemq.version>5.15.1</activemq.version>
+    <activemq-plugin.version>5.7.0</activemq-plugin.version>
+    <responder.version>1.0.1</responder.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <!-- Start & Stop ActiveMQ -->
+      <plugin>
+        <groupId>org.apache.activemq.tooling</groupId>
+        <artifactId>maven-activemq-plugin</artifactId>
+        <version>${activemq-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <fork>true</fork>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Start & Stop JMS Responder -->
+      <plugin>
+        <groupId>com.testingsyndicate</groupId>
+        <artifactId>jms-responder-maven-plugin</artifactId>
+        <version>${responder.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>start</goal>
+              <goal>stop</goal>
+            </goals>
+            <configuration>
+              <!-- this is the default value, but you can change it -->
+              <configFile>src/test/resources/responder.yaml</configFile>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <!-- You need to include the correct dependencies for the ConnectionFactory you are going to use -->
+          <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>${activemq.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>${activemq.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <configuration>
+              <tasks>
+                  <sleep seconds="20" />
+              </tasks>
+          </configuration>
+          <executions>
+              <execution>
+                  <id>sleep-for-a-while</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                      <goal>run</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+```
+
+```
+mvn clean verify
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Example 0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ plugin-test ---
+[INFO] Deleting /Users/test/dummy-project/target
+[INFO]
+[INFO] --- maven-activemq-plugin:5.7.0:run (default) @ plugin-test ---
+[INFO] Loading broker configUri: broker:(tcp://localhost:61616)?useJmx=false&persistent=false
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ plugin-test ---
+[INFO] Using Persistence Adapter: MemoryPersistenceAdapter
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 2 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ plugin-test ---
+[INFO] Changes detected - recompiling the module!
+[WARNING] File encoding has not been set, using platform encoding UTF-8, i.e. build is platform dependent!
+[INFO] Compiling 1 source file to /Users/test/dummy-project/target/classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ plugin-test ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /Users/test/dummy-project/src/test/resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ plugin-test ---
+[INFO] No sources to compile
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ plugin-test ---
+[INFO] No tests to run.
+[INFO]
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ plugin-test ---
+[INFO] Building jar: /Users/test/dummy-project/target/plugin-test-0.1-SNAPSHOT.jar
+[INFO]
+[INFO] --- jms-responder-maven-plugin:1.0.0-SNAPSHOT:start (default) @ plugin-test ---
+[INFO] Loading responder config /Users/test/dummy-project/src/main/resources/responder.yaml
+[INFO] Initializing class org.apache.activemq.ActiveMQConnectionFactory
+[INFO] Setting brokerURL
+[INFO] Starting responder
+[INFO] Apache ActiveMQ 5.7.0 (localhost) is starting
+[INFO] Listening for connections at: tcp://localhost:61616
+[INFO] Connector tcp://localhost:61616 Started
+[INFO] Apache ActiveMQ 5.7.0 (localhost) started
+[INFO] For help or more information please see: http://activemq.apache.org
+[INFO]
+[INFO] --- maven-antrun-plugin:1.3:run (sleep-for-a-while) @ plugin-test ---
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Executing tasks
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Waiting for message on queue://INBOUND.QUEUE for 2000ms
+[INFO] Executed tasks
+[INFO]
+[INFO] --- jms-responder-maven-plugin:1.0.0-SNAPSHOT:stop (default) @ plugin-test ---
+[INFO] Stopping responder
+[INFO] Shutting down
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 36.150 s
+[INFO] Finished at: 2017-10-22T08:20:01+01:00
+[INFO] Final Memory: 30M/318M
+[INFO] ------------------------------------------------------------------------
+[INFO] Apache ActiveMQ 5.7.0 (localhost) is shutting down
 ```
