@@ -85,6 +85,7 @@ final class MessageHandler implements Runnable {
             RequestInfo requestInfo = RequestInfo.newBuilder()
                     .withBody(textMessage.getText())
                     .withQueueName(queue.getQueueName())
+                    .withCorrelationId(textMessage.getJMSCorrelationID())
                     .build();
 
             LOG.trace("Looking for a match");

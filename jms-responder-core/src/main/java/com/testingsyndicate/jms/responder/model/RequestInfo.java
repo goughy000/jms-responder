@@ -4,10 +4,12 @@ public final class RequestInfo {
 
     private final String body;
     private final String queueName;
+    private final String correlationId;
 
     private RequestInfo(Builder builder) {
         body = builder.body;
         queueName = builder.queueName;
+        correlationId = builder.correlationId;
     }
 
     public String getBody() {
@@ -18,6 +20,17 @@ public final class RequestInfo {
         return queueName;
     }
 
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Request (CorrelationId=%s) (QueueName=%s)",
+                correlationId,
+                queueName);
+    }
+
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -26,6 +39,7 @@ public final class RequestInfo {
 
         private String body;
         private String queueName;
+        private String correlationId;
 
         private Builder() {
         }
@@ -37,6 +51,11 @@ public final class RequestInfo {
 
         public Builder withQueueName(String queueName) {
             this.queueName = queueName;
+            return this;
+        }
+
+        public Builder withCorrelationId(String correlationId) {
+            this.correlationId = correlationId;
             return this;
         }
 

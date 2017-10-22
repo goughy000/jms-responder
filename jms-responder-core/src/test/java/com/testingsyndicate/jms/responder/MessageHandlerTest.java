@@ -50,6 +50,7 @@ public class MessageHandlerTest {
         ArgumentCaptor<RequestInfo> captor = ArgumentCaptor.forClass(RequestInfo.class);
         when(mockMessage.getText()).thenReturn("wibble");
         when(mockDestination.getQueueName()).thenReturn("wobble");
+        when(mockMessage.getJMSCorrelationID()).thenReturn("cobble");
 
         // when
         sut.onMessage(mockMessage);
@@ -59,6 +60,7 @@ public class MessageHandlerTest {
         // then
         assertThat(actual.getBody()).isEqualTo("wibble");
         assertThat(actual.getQueueName()).isEqualTo("wobble");
+        assertThat(actual.getCorrelationId()).isEqualTo("cobble");
     }
 
     @Test
