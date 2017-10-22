@@ -29,5 +29,14 @@ stubs:
         queue: INBOUND.QUEUE
     body: queue matched
 
+  - description: "body = (xml(<xml>  <wibble /> </xml>))"
+    matchers:
+      - type: xml
+        body: |-
+          <xml>
+            <wibble />
+          </xml>
+    body: "<xml><response /></xml>"
+
   - description: Default fallback
     body: the default
