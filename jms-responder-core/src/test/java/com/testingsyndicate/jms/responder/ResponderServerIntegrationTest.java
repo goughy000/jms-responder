@@ -109,6 +109,19 @@ public class ResponderServerIntegrationTest {
     }
 
     @Test
+    public void matchesOnBodyXml() throws Exception {
+        // given
+        String correlationId = UUID.randomUUID().toString();
+
+        // when
+        TextMessage actual = exchangeMessage(correlationId, "<xml> <wibble />  </xml>");
+
+        // then
+        assertThat(actual.getText()).isEqualTo("<xml><response /></xml>");
+        assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
+
+    @Test
     public void fallsBackToDefault() throws Exception {
         // given
         String correlationId = UUID.randomUUID().toString();

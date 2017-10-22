@@ -59,6 +59,19 @@ Compares the request message body against a fixed value.  Allows for optional tr
   trim: true
 ```
 
+#### XmlMatcher
+Compares the request message body against a fixed value of XML.  Strips out whitespace and normalizes namespaces.
+
+Requests don't have to be xml, but the expected body **must** be valid xml
+
+```yaml
+- type: xml
+  body: |-
+    <xml>
+      <value>valid xml</value>
+    </xml>
+```
+
 #### QueueMatcher
 Compares the request queue name against a fixed value
 
