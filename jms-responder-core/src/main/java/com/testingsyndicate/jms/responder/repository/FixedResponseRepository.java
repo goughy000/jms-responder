@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.repository;
 
 import com.testingsyndicate.jms.responder.matcher.Matcher;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
 import com.testingsyndicate.jms.responder.model.StubbedResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,9 @@ public final class FixedResponseRepository implements ResponseRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(FixedResponseRepository.class);
 
-    private final List<StubbedResponse> responses;
+    private final List<MatchableStubbedResponse> responses;
 
-    public FixedResponseRepository(List<StubbedResponse> responses) {
+    public FixedResponseRepository(List<MatchableStubbedResponse> responses) {
         this.responses = new ArrayList<>(responses);
     }
 
@@ -24,10 +25,11 @@ public final class FixedResponseRepository implements ResponseRepository {
         LOG.trace("Looking for a match for {}", requestInfo);
         Optional<StubbedResponse> match = responses.stream()
                 .filter(r -> matches(r, requestInfo))
+                .map(r -> (StubbedResponse)r)
                 .findFirst();
 
         if (match.isPresent()) {
-            LOG.info("Found match {}", match.get());
+            LOG.debug("Found match {}", match.get());
         } else {
             LOG.warn("No matches found for {}", requestInfo);
         }
@@ -35,7 +37,7 @@ public final class FixedResponseRepository implements ResponseRepository {
         return match;
     }
 
-    private static boolean matches(StubbedResponse response, RequestInfo requestInfo) {
+    private static boolean matches(MatchableStubbedResponse response, RequestInfo requestInfo) {
         List<Matcher> matchers = response.getMatchers();
         return null == matchers || matchers.stream().allMatch(m -> m.matches(requestInfo));
     }

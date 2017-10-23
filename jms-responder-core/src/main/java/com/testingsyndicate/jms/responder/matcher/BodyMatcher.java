@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.matcher;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 
 import java.util.Objects;
@@ -49,8 +50,8 @@ public final class BodyMatcher implements Matcher {
             trim = false;
         }
 
-        public Builder withBody(String body) {
-            this.body = body;
+        public Builder withBody(BodySource body) {
+            this.body = body.getBody();
             return this;
         }
 

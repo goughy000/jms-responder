@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.repository;
 
 import com.testingsyndicate.jms.responder.matcher.Matcher;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
 import com.testingsyndicate.jms.responder.model.StubbedResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsStubWhenAllMatch() {
         // given
-        StubbedResponse response = response(trueMatcher);
+        MatchableStubbedResponse response = response(trueMatcher);
         ResponseRepository sut = repo(response);
 
         // when
@@ -85,7 +86,7 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsSecondStubIfMatch() {
         // given
-        StubbedResponse response = response(trueMatcher);
+        MatchableStubbedResponse response = response(trueMatcher);
         ResponseRepository sut = repo(response(falseMatcher), response);
 
         // when
@@ -98,7 +99,7 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsResponseIfEmptyMatchers() {
         // given
-        StubbedResponse response = response();
+        MatchableStubbedResponse response = response();
         ResponseRepository sut = repo(response);
 
         // when
@@ -108,13 +109,13 @@ public class FixedResponseRepositoryTest {
         assertThat(actual).contains(response);
     }
 
-    private static StubbedResponse response(Matcher... matchers) {
-        return StubbedResponse.newBuilder()
+    private static MatchableStubbedResponse response(Matcher... matchers) {
+        return MatchableStubbedResponse.newBuilder()
                 .withMatchers(Arrays.asList(matchers))
                 .build();
     }
 
-    private static FixedResponseRepository repo(StubbedResponse... responses) {
+    private static FixedResponseRepository repo(MatchableStubbedResponse... responses) {
         return new FixedResponseRepository(Arrays.asList(responses));
     }
 

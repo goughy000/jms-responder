@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.matcher;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -15,7 +16,8 @@ import java.util.Objects;
 
 public class XmlMatcher implements Matcher {
 
-    private static final DOMImplementationLS DOM_IMPL;
+    private static final DOMImplementationLS DOM;
+    private static final DocumentBuilderFactory DBF;
 
     static {
         DOMImplementationRegistry registry;
@@ -24,15 +26,16 @@ public class XmlMatcher implements Matcher {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        DOM_IMPL = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        DOM = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        DBF = DocumentBuilderFactory.newInstance();
     }
 
     private final String body;
     private final String prettyBody;
 
     @JsonCreator
-    public XmlMatcher(@JsonProperty("body") String body) {
-        this.body = body;
+    public XmlMatcher(@JsonProperty("body") BodySource source) {
+        this.body = source.getBody();
 
         String prettyBody = prettyPrint(body);
         if (null == prettyBody) {
@@ -51,8 +54,7 @@ public class XmlMatcher implements Matcher {
 
     private static Document loadDocument(String xml) {
         try (InputStream is = new ByteArrayInputStream(xml.getBytes())) {
-            return DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
+            return DBF.newDocumentBuilder()
                     .parse(is);
         } catch (Exception ex) {
             return null;
@@ -65,7 +67,7 @@ public class XmlMatcher implements Matcher {
         if (null == document)
             return null;
 
-        LSSerializer serializer = DOM_IMPL.createLSSerializer();
+        LSSerializer serializer = DOM.createLSSerializer();
         serializer.getDomConfig().setParameter("format-pretty-print", true);
         return serializer.writeToString(document);
     }

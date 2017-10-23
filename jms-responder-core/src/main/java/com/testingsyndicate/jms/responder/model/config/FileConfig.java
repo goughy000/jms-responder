@@ -2,20 +2,26 @@ package com.testingsyndicate.jms.responder.model.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.testingsyndicate.jms.responder.model.StubbedResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.testingsyndicate.jms.responder.model.BodySource;
+import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public final class FileConfig {
 
     private final ConnectionFactoryConfig connectionFactory;
     private final List<String> queues;
-    private final List<StubbedResponse> stubs;
+    private final List<MatchableStubbedResponse> stubs;
 
     @JsonCreator
     public FileConfig(@JsonProperty("connectionFactory") ConnectionFactoryConfig connectionFactory,
                       @JsonProperty("queues") List<String> queues,
-                      @JsonProperty("stubs") List<StubbedResponse> stubs) {
+                      @JsonProperty("stubs") List<MatchableStubbedResponse> stubs) {
         this.connectionFactory = connectionFactory;
         this.queues = queues;
         this.stubs = stubs;
@@ -29,7 +35,20 @@ public final class FileConfig {
         return queues;
     }
 
-    public List<StubbedResponse> getStubs() {
+    public List<MatchableStubbedResponse> getStubs() {
         return stubs;
+    }
+
+    public static FileConfig fromFile(String path) throws IOException {
+        return fromFile(new File(path));
+    }
+
+    public static FileConfig fromFile(File file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(BodySource.class, new BodySourceDeserializer(file.getParent()));
+        mapper.registerModule(module);
+
+        return mapper.readValue(file, FileConfig.class);
     }
 }

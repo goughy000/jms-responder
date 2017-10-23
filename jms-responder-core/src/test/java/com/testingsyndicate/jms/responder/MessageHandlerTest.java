@@ -1,7 +1,8 @@
 package com.testingsyndicate.jms.responder;
 
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import com.testingsyndicate.jms.responder.model.StubbedResponse;
+import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
 import com.testingsyndicate.jms.responder.repository.ResponseRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class MessageHandlerTest {
         when(mockMessage.getJMSDestination()).thenReturn(mockDestination);
         when(mockMessage.getJMSCorrelationID()).thenReturn("jms-corr-id");
         when(mockMessage.getJMSReplyTo()).thenReturn(mockReplyDestination);
-        StubbedResponse response = StubbedResponse.newBuilder().withBody("bla the message").build();
+        MatchableStubbedResponse response = MatchableStubbedResponse.newBuilder().withBody(new BodySource("bla the message")).build();
         when(mockRepo.findMatch(any(RequestInfo.class))).thenReturn(Optional.of(response));
         when(mockSession.createTextMessage()).thenReturn(mockReplyMessage);
         sut = new MessageHandler(mockSession, "q", mockRepo);
@@ -50,6 +51,7 @@ public class MessageHandlerTest {
         ArgumentCaptor<RequestInfo> captor = ArgumentCaptor.forClass(RequestInfo.class);
         when(mockMessage.getText()).thenReturn("wibble");
         when(mockDestination.getQueueName()).thenReturn("wobble");
+        when(mockMessage.getJMSCorrelationID()).thenReturn("cobble");
 
         // when
         sut.onMessage(mockMessage);
@@ -59,6 +61,7 @@ public class MessageHandlerTest {
         // then
         assertThat(actual.getBody()).isEqualTo("wibble");
         assertThat(actual.getQueueName()).isEqualTo("wobble");
+        assertThat(actual.getCorrelationId()).isEqualTo("cobble");
     }
 
     @Test

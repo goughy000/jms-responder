@@ -1,10 +1,12 @@
 package com.testingsyndicate.jms.responder;
 
+import com.testingsyndicate.jms.responder.model.config.FileConfig;
 import com.testingsyndicate.jms.responder.model.config.FileConfigTest;
 import org.apache.activemq.junit.EmbeddedActiveMQBroker;
 import org.junit.*;
 
 import javax.jms.*;
+import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -40,8 +42,8 @@ public class ResponderServerIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        InputStream config = fixture("integration.yaml");
-        sut = ResponderServer.fromConfig(config);
+        File config = fixture("integration.yaml");
+        sut = ResponderServer.fromConfig(FileConfig.fromFile(config));
         sut.start();
     }
 
@@ -146,8 +148,8 @@ public class ResponderServerIntegrationTest {
         return (TextMessage) consumer.receive(5000);
     }
 
-    private static InputStream fixture(String path) {
-        return FileConfigTest.class.getClassLoader().getResourceAsStream("fixtures/" + path);
+    private static File fixture(String path) {
+        return new File(FileConfigTest.class.getClassLoader().getResource("fixtures/" + path).getFile());
     }
 
 }
