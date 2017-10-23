@@ -76,8 +76,8 @@ public final class MatchableStubbedResponse implements StubbedResponse {
             return this;
         }
 
-        public Builder withBody(String body) {
-            this.body = body;
+        public Builder withBody(BodySource body) {
+            this.body = body.getBody();
             return this;
         }
 

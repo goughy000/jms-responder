@@ -116,8 +116,8 @@ stubs:
 To load this config you can...
 
 ```java
-InputStream is = new FileInputStream("path/to/config.yaml");
-ResponderServer server = ResponderServer.fromConfig(is);
+FileConfig config = FileConfig.fromFile("path/to/config.yaml");
+ResponderServer server = ResponderServer.fromConfig(config);
 server.start();
 ```
 

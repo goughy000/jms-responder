@@ -1,5 +1,6 @@
 package com.testingsyndicate.jms.responder.matcher;
 
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ public class BodyMatcherTest {
     @Test
     public void matchesWhenEqual() {
         // given
-        BodyMatcher sut = BodyMatcher.newBuilder().withBody("wibble").build();
+        BodyMatcher sut = bodyMatcher("wibble", false);
 
         RequestInfo requestInfo = requestInfoWithBody("wibble");
 
@@ -24,7 +25,7 @@ public class BodyMatcherTest {
     @Test
     public void doesntMatchWhenDifferent() {
         // given
-        BodyMatcher sut = BodyMatcher.newBuilder().withBody("wibble").build();
+        BodyMatcher sut = bodyMatcher("wibble", false);
         RequestInfo requestInfo = requestInfoWithBody("wobble");
 
         // when
@@ -37,7 +38,7 @@ public class BodyMatcherTest {
     @Test
     public void matchesNulls() {
         // given
-        BodyMatcher sut = BodyMatcher.newBuilder().withBody(null).build();
+        BodyMatcher sut = bodyMatcher(null, false);
         RequestInfo requestInfo = requestInfoWithBody(null);
 
         // when
@@ -50,7 +51,7 @@ public class BodyMatcherTest {
     @Test
     public void matchesWhenTrimmed() {
         // given
-        BodyMatcher sut = BodyMatcher.newBuilder().withBody("hi").withTrim(true).build();
+        BodyMatcher sut = bodyMatcher("hi", true);
         RequestInfo requestInfo = requestInfoWithBody("  hi   ");
 
         // when
@@ -58,6 +59,13 @@ public class BodyMatcherTest {
 
         // then
         assertThat(actual).isTrue();
+    }
+
+    private static BodyMatcher bodyMatcher(String body, boolean trim) {
+        return BodyMatcher.newBuilder()
+                .withBody(new BodySource(body))
+                .withTrim(trim)
+                .build();
     }
 
     private static RequestInfo requestInfoWithBody(String body) {

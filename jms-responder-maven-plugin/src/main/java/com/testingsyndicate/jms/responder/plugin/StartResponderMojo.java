@@ -1,6 +1,7 @@
 package com.testingsyndicate.jms.responder.plugin;
 
 import com.testingsyndicate.jms.responder.ResponderServer;
+import com.testingsyndicate.jms.responder.model.config.FileConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -8,8 +9,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 @Mojo(name = "start", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class StartResponderMojo extends AbstractResponderMojo {
@@ -20,8 +19,9 @@ public class StartResponderMojo extends AbstractResponderMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info(String.format("Loading responder config %s", configFile));
-        try (InputStream is = new FileInputStream(configFile)) {
-            ResponderServer server = ResponderServer.fromConfig(is);
+        try {
+            FileConfig config = FileConfig.fromFile(configFile);
+            ResponderServer server = ResponderServer.fromConfig(config);
             getLog().info("Starting responder");
             server.start();
             getPluginContext().put(SERVER_KEY, server);

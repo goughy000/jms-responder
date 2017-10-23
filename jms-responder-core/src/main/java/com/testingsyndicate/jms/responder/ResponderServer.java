@@ -1,7 +1,5 @@
 package com.testingsyndicate.jms.responder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.testingsyndicate.jms.responder.model.config.ConnectionFactoryConfig;
 import com.testingsyndicate.jms.responder.model.config.FileConfig;
 import com.testingsyndicate.jms.responder.repository.FixedResponseRepository;
@@ -14,7 +12,6 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +21,6 @@ import java.util.concurrent.Executors;
 public final class ResponderServer implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResponderServer.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
 
     private final ConnectionFactory connectionFactory;
     private final List<String> queueNames;
@@ -89,10 +85,8 @@ public final class ResponderServer implements AutoCloseable {
         }
     }
 
-    public static ResponderServer fromConfig(InputStream config) throws Exception {
-        FileConfig fileConfig = MAPPER.readValue(config, FileConfig.class);
-
-        ConnectionFactoryConfig cfc = fileConfig.getConnectionFactory();
+    public static ResponderServer fromConfig(FileConfig config) throws Exception {
+        ConnectionFactoryConfig cfc = config.getConnectionFactory();
         Class clazz = Class.forName(cfc.getClazz());
         LOG.info("Initializing {}", clazz);
         ConnectionFactory connectionFactory = (ConnectionFactory) clazz.newInstance();
@@ -102,8 +96,8 @@ public final class ResponderServer implements AutoCloseable {
         }
 
         return newBuilder()
-                .withQueueNames(fileConfig.getQueues())
-                .withRepository(new FixedResponseRepository(fileConfig.getStubs()))
+                .withQueueNames(config.getQueues())
+                .withRepository(new FixedResponseRepository(config.getStubs()))
                 .withConnectionFactory(connectionFactory)
                 .build();
     }

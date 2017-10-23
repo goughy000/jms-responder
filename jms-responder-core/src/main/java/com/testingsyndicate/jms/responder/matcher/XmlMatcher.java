@@ -2,6 +2,7 @@ package com.testingsyndicate.jms.responder.matcher;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -33,8 +34,8 @@ public class XmlMatcher implements Matcher {
     private final String prettyBody;
 
     @JsonCreator
-    public XmlMatcher(@JsonProperty("body") String body) {
-        this.body = body;
+    public XmlMatcher(@JsonProperty("body") BodySource source) {
+        this.body = source.getBody();
 
         String prettyBody = prettyPrint(body);
         if (null == prettyBody) {

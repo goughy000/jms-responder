@@ -39,4 +39,4 @@ stubs:
     body: "<xml><response /></xml>"
 
   - description: Default fallback
-    body: the default
+    body: '@@default-response.txt'

@@ -1,5 +1,6 @@
 package com.testingsyndicate.jms.responder.matcher;
 
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ public class XmlMatcherTest {
     @Test
     public void matchesBinaryEqualXml() {
         // given
-        XmlMatcher sut = new XmlMatcher("<xml></xml>");
+        XmlMatcher sut = xmlMatcher("<xml></xml>");
 
         // when
         boolean actual = sut.matches(withBody("<xml></xml>"));
@@ -22,7 +23,7 @@ public class XmlMatcherTest {
     @Test
     public void doesntMatchUnequalXml() {
         // given
-        XmlMatcher sut = new XmlMatcher("<xml>1</xml>");
+        XmlMatcher sut = xmlMatcher("<xml>1</xml>");
 
         // when
         boolean actual = sut.matches(withBody("<xml>2</xml>"));
@@ -34,7 +35,7 @@ public class XmlMatcherTest {
     @Test
     public void matchesEquivalentXml() {
         // given
-        XmlMatcher sut = new XmlMatcher("<xml><one /><two /></xml>");
+        XmlMatcher sut = xmlMatcher("<xml><one /><two /></xml>");
 
         // when
         boolean actual = sut.matches(withBody("<xml> <one />          <two />\n</xml>"));
@@ -50,7 +51,7 @@ public class XmlMatcherTest {
 
         // when
         try {
-            new XmlMatcher(invalidXml);
+            xmlMatcher(invalidXml);
         } catch (InvalidMatcherException actual) {
             // then
             assertThat(actual).hasMessage("Invalid XML Body wibble");
@@ -60,7 +61,7 @@ public class XmlMatcherTest {
     @Test
     public void falseWhenInvalidXml() {
         // given
-        XmlMatcher sut = new XmlMatcher("<xml></xml>");
+        XmlMatcher sut = xmlMatcher("<xml></xml>");
         String invalidXml = "wibble";
 
         // when
@@ -68,6 +69,10 @@ public class XmlMatcherTest {
 
         // then
         assertThat(actual).isFalse();
+    }
+
+    private static XmlMatcher xmlMatcher(String body) {
+        return new XmlMatcher(new BodySource(body));
     }
 
     private static RequestInfo withBody(String body) {

@@ -1,5 +1,6 @@
 package com.testingsyndicate.jms.responder;
 
+import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
 import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
 import com.testingsyndicate.jms.responder.repository.ResponseRepository;
@@ -38,7 +39,7 @@ public class MessageHandlerTest {
         when(mockMessage.getJMSDestination()).thenReturn(mockDestination);
         when(mockMessage.getJMSCorrelationID()).thenReturn("jms-corr-id");
         when(mockMessage.getJMSReplyTo()).thenReturn(mockReplyDestination);
-        MatchableStubbedResponse response = MatchableStubbedResponse.newBuilder().withBody("bla the message").build();
+        MatchableStubbedResponse response = MatchableStubbedResponse.newBuilder().withBody(new BodySource("bla the message")).build();
         when(mockRepo.findMatch(any(RequestInfo.class))).thenReturn(Optional.of(response));
         when(mockSession.createTextMessage()).thenReturn(mockReplyMessage);
         sut = new MessageHandler(mockSession, "q", mockRepo);
