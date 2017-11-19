@@ -104,4 +104,17 @@ public class MessageHandlerTest {
         verify(mockSession, never()).createTextMessage();
     }
 
+    @Test
+    public void doesntReplyIfNoReplyQueue() throws JMSException {
+        // given
+        when(mockMessage.getJMSReplyTo()).thenReturn(null);
+
+        // when
+        sut.onMessage(mockMessage);
+
+        // then
+        verify(mockMessage).getJMSReplyTo();
+        verifyNoMoreInteractions(mockRepo);
+    }
+
 }

@@ -16,8 +16,14 @@ public class StartResponderMojo extends AbstractResponderMojo {
     @Parameter(property = "configFile", defaultValue = "src/test/resources/responder.yaml")
     private File configFile;
 
+    @Parameter(property = "skip", defaultValue = "false")
+    private boolean skip;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            return;
+        }
         getLog().info(String.format("Loading responder config %s", configFile));
         try {
             FileConfig config = FileConfig.fromFile(configFile);

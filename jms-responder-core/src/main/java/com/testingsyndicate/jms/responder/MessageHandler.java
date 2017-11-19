@@ -34,7 +34,7 @@ final class MessageHandler implements Runnable {
             Destination destination = session.createQueue(queueName);
             consumer = session.createConsumer(destination);
 
-            while (true) {
+            for (;;) {
                 try {
                     LOG.info("Waiting for message on {} for {}ms", destination, RECEIVE_TIMEOUT);
                     Message request = consumer.receive(RECEIVE_TIMEOUT);
@@ -81,21 +81,27 @@ final class MessageHandler implements Runnable {
 
             // Grab info
             Queue queue = (Queue) textMessage.getJMSDestination();
+            Queue replyTo = (Queue)textMessage.getJMSReplyTo();
             String queueName = queue.getQueueName();
             String body = textMessage.getText();
             String correlationId = textMessage.getJMSCorrelationID();
 
+            LOG.info(">>> (CorrelationId={}) (Queue={})", correlationId, queueName);
+            LOG.trace(">>> {}", body);
+
+            if (null == replyTo) {
+                LOG.warn("No reply queue, not sending a reply");
+                return;
+            }
+
             // Find a stub
+            LOG.trace("Looking for a match");
             RequestInfo requestInfo = RequestInfo.newBuilder()
                     .withBody(body)
                     .withQueueName(queueName)
                     .withCorrelationId(correlationId)
                     .build();
 
-            LOG.info(">>> (CorrelationId={}) (Queue={})", correlationId, queueName);
-            LOG.trace(">>> {}", body);
-
-            LOG.trace("Looking for a match");
             Optional<StubbedResponse> match = repository.findMatch(requestInfo);
 
             // Did we find one?
@@ -111,13 +117,6 @@ final class MessageHandler implements Runnable {
             if (null == correlationId) {
                 LOG.debug("Falling back to the MessageID for CorrelationID");
                 correlationId = textMessage.getJMSMessageID();
-            }
-
-            // Where are we sending?
-            Queue replyTo = (Queue)textMessage.getJMSReplyTo();
-            if (null == replyTo) {
-                LOG.warn("No reply queue, not sending a reply");
-                return;
             }
 
             // Build the reply message
