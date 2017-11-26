@@ -2,6 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.testingsyndicate/jms-responder-core.svg)](https://mvnrepository.com/artifact/com.testingsyndicate/jms-responder-core)
 [![CircleCI](https://img.shields.io/circleci/project/github/goughy000/jms-responder.svg)](https://circleci.com/gh/goughy000/jms-responder)
+[![GitHub license](https://img.shields.io/github/license/goughy000/jms-responder.svg)](https://github.com/goughy000/jms-responder/blob/master/LICENSE)
 
 ## A stubbing utility for JMS Request/Reply
 
