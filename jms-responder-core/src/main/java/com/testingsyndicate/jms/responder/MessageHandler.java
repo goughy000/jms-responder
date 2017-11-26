@@ -1,7 +1,7 @@
 package com.testingsyndicate.jms.responder;
 
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import com.testingsyndicate.jms.responder.model.StubbedResponse;
+import com.testingsyndicate.jms.responder.model.Response;
 import com.testingsyndicate.jms.responder.repository.ResponseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +102,7 @@ final class MessageHandler implements Runnable {
                     .withCorrelationId(correlationId)
                     .build();
 
-            Optional<StubbedResponse> match = repository.findMatch(requestInfo);
+            Optional<Response> match = repository.findResponse(requestInfo);
 
             // Did we find one?
             if (!match.isPresent()) {
@@ -110,7 +110,7 @@ final class MessageHandler implements Runnable {
                 return;
             }
 
-            StubbedResponse response = match.get();
+            Response response = match.get();
             LOG.trace("Found match {}", response);
 
             // Work out correlation id for the reply

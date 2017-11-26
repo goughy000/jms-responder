@@ -1,6 +1,6 @@
 package com.testingsyndicate.jms.responder.model;
 
-public final class RequestInfo {
+public final class RequestInfo implements Request {
 
     private final String body;
     private final String queueName;
@@ -12,14 +12,17 @@ public final class RequestInfo {
         correlationId = builder.correlationId;
     }
 
+    @Override
     public String getBody() {
         return body;
     }
 
+    @Override
     public String getQueueName() {
         return queueName;
     }
 
+    @Override
     public String getCorrelationId() {
         return correlationId;
     }

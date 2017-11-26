@@ -1,6 +1,6 @@
 package com.testingsyndicate.jms.responder.model;
 
-public interface StubbedResponse {
+public interface Response {
 
     String getBody();
 

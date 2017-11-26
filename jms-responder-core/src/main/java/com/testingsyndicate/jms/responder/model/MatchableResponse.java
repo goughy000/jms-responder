@@ -7,35 +7,38 @@ import com.testingsyndicate.jms.responder.matcher.Matcher;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonDeserialize(builder = MatchableStubbedResponse.Builder.class)
-public final class MatchableStubbedResponse implements StubbedResponse {
+@JsonDeserialize(builder = MatchableResponse.Builder.class)
+public final class MatchableResponse implements Response {
 
     private final String description;
     private final List<Matcher> matchers;
     private final String body;
     private final int delay;
 
-    private MatchableStubbedResponse(Builder builder) {
+    private MatchableResponse(Builder builder) {
         description = builder.description;
         matchers = builder.matchers;
         body = builder.body;
         delay = builder.delay;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
-    public List<Matcher> getMatchers() {
-        return matchers;
-    }
-
+    @Override
     public String getBody() {
         return body;
     }
 
+    @Override
     public int getDelay() {
         return delay;
+    }
+
+    public List<Matcher> getMatchers() {
+        return matchers;
     }
 
     @Override
@@ -86,8 +89,8 @@ public final class MatchableStubbedResponse implements StubbedResponse {
             return this;
         }
 
-        public MatchableStubbedResponse build() {
-            return new MatchableStubbedResponse(this);
+        public MatchableResponse build() {
+            return new MatchableResponse(this);
         }
 
     }

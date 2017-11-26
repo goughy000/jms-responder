@@ -2,8 +2,8 @@ package com.testingsyndicate.jms.responder.repository;
 
 import com.testingsyndicate.jms.responder.matcher.Matcher;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
-import com.testingsyndicate.jms.responder.model.StubbedResponse;
+import com.testingsyndicate.jms.responder.model.MatchableResponse;
+import com.testingsyndicate.jms.responder.model.Response;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class FixedResponseRepositoryTest {
         ResponseRepository sut = repo(response(falseMatcher));
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         assertThat(actual).isEmpty();
@@ -47,11 +47,11 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsStubWhenAllMatch() {
         // given
-        MatchableStubbedResponse response = response(trueMatcher);
+        MatchableResponse response = response(trueMatcher);
         ResponseRepository sut = repo(response);
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         assertThat(actual).contains(response);
@@ -63,7 +63,7 @@ public class FixedResponseRepositoryTest {
         ResponseRepository sut = repo(response(trueMatcher, falseMatcher));
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         assertThat(actual).isEmpty();
@@ -75,7 +75,7 @@ public class FixedResponseRepositoryTest {
         ResponseRepository sut = repo(response(falseMatcher, trueMatcher));
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         verify(falseMatcher).matches(eq(dummyRequestInfo));
@@ -86,11 +86,11 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsSecondStubIfMatch() {
         // given
-        MatchableStubbedResponse response = response(trueMatcher);
+        MatchableResponse response = response(trueMatcher);
         ResponseRepository sut = repo(response(falseMatcher), response);
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         assertThat(actual).contains(response);
@@ -99,23 +99,23 @@ public class FixedResponseRepositoryTest {
     @Test
     public void returnsResponseIfEmptyMatchers() {
         // given
-        MatchableStubbedResponse response = response();
+        MatchableResponse response = response();
         ResponseRepository sut = repo(response);
 
         // when
-        Optional<StubbedResponse> actual = sut.findMatch(dummyRequestInfo);
+        Optional<Response> actual = sut.findResponse(dummyRequestInfo);
 
         // then
         assertThat(actual).contains(response);
     }
 
-    private static MatchableStubbedResponse response(Matcher... matchers) {
-        return MatchableStubbedResponse.newBuilder()
+    private static MatchableResponse response(Matcher... matchers) {
+        return MatchableResponse.newBuilder()
                 .withMatchers(Arrays.asList(matchers))
                 .build();
     }
 
-    private static FixedResponseRepository repo(MatchableStubbedResponse... responses) {
+    private static FixedResponseRepository repo(MatchableResponse... responses) {
         return new FixedResponseRepository(Arrays.asList(responses));
     }
 

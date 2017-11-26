@@ -2,7 +2,7 @@ package com.testingsyndicate.jms.responder.matcher;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.Request;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,9 +17,9 @@ public final class AllMatcher implements Matcher {
     }
 
     @Override
-    public boolean matches(RequestInfo requestInfo) {
+    public boolean matches(Request request) {
         return matchers
                 .stream()
-                .allMatch(m -> m.matches(requestInfo));
+                .allMatch(m -> m.matches(request));
     }
 }

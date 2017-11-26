@@ -1,6 +1,6 @@
 package com.testingsyndicate.jms.responder.model;
 
-public class BodySource {
+public final class BodySource {
 
     private final String body;
 

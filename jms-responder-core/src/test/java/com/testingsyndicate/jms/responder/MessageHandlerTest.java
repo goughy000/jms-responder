@@ -2,7 +2,7 @@ package com.testingsyndicate.jms.responder;
 
 import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
+import com.testingsyndicate.jms.responder.model.MatchableResponse;
 import com.testingsyndicate.jms.responder.repository.ResponseRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +39,8 @@ public class MessageHandlerTest {
         when(mockMessage.getJMSDestination()).thenReturn(mockDestination);
         when(mockMessage.getJMSCorrelationID()).thenReturn("jms-corr-id");
         when(mockMessage.getJMSReplyTo()).thenReturn(mockReplyDestination);
-        MatchableStubbedResponse response = MatchableStubbedResponse.newBuilder().withBody(new BodySource("bla the message")).build();
-        when(mockRepo.findMatch(any(RequestInfo.class))).thenReturn(Optional.of(response));
+        MatchableResponse response = MatchableResponse.newBuilder().withBody(new BodySource("bla the message")).build();
+        when(mockRepo.findResponse(any(RequestInfo.class))).thenReturn(Optional.of(response));
         when(mockSession.createTextMessage()).thenReturn(mockReplyMessage);
         sut = new MessageHandler(mockSession, "q", mockRepo);
     }
@@ -55,7 +55,7 @@ public class MessageHandlerTest {
 
         // when
         sut.onMessage(mockMessage);
-        verify(mockRepo).findMatch(captor.capture());
+        verify(mockRepo).findResponse(captor.capture());
         RequestInfo actual = captor.getValue();
 
         // then
@@ -95,7 +95,7 @@ public class MessageHandlerTest {
     @Test
     public void doesntReplyIfNoMatch() throws JMSException {
         // given
-        when(mockRepo.findMatch(any(RequestInfo.class))).thenReturn(Optional.empty());
+        when(mockRepo.findResponse(any(RequestInfo.class))).thenReturn(Optional.empty());
 
         // when
         sut.onMessage(mockMessage);

@@ -1,6 +1,8 @@
 # JMS Responder
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.testingsyndicate/jms-responder-core.svg)](https://mvnrepository.com/artifact/com.testingsyndicate/jms-responder-core)
+[![CircleCI](https://img.shields.io/circleci/project/github/goughy000/jms-responder.svg)](https://circleci.com/gh/goughy000/jms-responder)
+[![GitHub license](https://img.shields.io/github/license/goughy000/jms-responder.svg)](https://github.com/goughy000/jms-responder/blob/master/LICENSE)
 
 ## A stubbing utility for JMS Request/Reply
 
@@ -19,14 +21,14 @@ JMS Responder allows you to stub out the server side of this interaction.  Eithe
 #### ResponderServer
 The *ResponderServer* is responsible for managing the kicking off threads to listen for inbound messages.  It is the main entry point.
 
-#### StubbedResponse
-A *StubbedResponse* is a pre-canned Request/Reply pair.  It contains a section on how to match a request, and the body to send in reply (and an optional delay)
+#### MatchableResponse
+A *MatchableResponse* is a pre-canned Request/Reply pair.  It contains a section on how to match a request, and the body to send in reply (and an optional delay)
 
 #### ResponseRepository
-A *ResponseRepository* is responsible for matching an inbound request with a *StubbedResponse*.  The *FixedResponseRepository* is an implementation included which just matches against a fixed list of *StubbedResponses*
+A *ResponseRepository* is responsible for matching an inbound *Request* with a *Response*.  The *FixedResponseRepository* is an implementation included which just matches against a fixed list of *MatchableResponses*
 
 #### Matcher
-A set of *Matchers* are assigned to each *StubbedResponse* and these are used by the *ResponseRepository* to check if a *StubbedResponse* is the correct one to send back for a given Request, a number of *Matchers* are included
+A set of *Matchers* are assigned to each *MatchableResponse* and these are used by the *ResponseRepository* to check if a *MatchableResponse* is the correct one to send back for a given *Request*, a number of *Matchers* are included
 
 ### Matchers
 
@@ -98,7 +100,7 @@ connectionFactory:
 queues:
   - INBOUND.QUEUE
 
-# a list of StubbedResponses
+# a list of MatchableResponses
 stubs:
   # Description is just used in logs
   - description: a description
@@ -126,7 +128,7 @@ server.start();
 If you are starting up as part of a Unit Test or Integration test you may prefer to start purely through code.
 
 ```java
-List<StubbedResponse> responses = ...;
+List<MatchableResponse> responses = ...;
 ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
 ...
 
