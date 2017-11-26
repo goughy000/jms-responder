@@ -7,7 +7,6 @@ import org.junit.*;
 
 import javax.jms.*;
 import java.io.File;
-import java.io.InputStream;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,6 +81,18 @@ public class ResponderServerIntegrationTest {
         // then
         assertThat(actual.getText()).isEqualTo("Hello back to you!");
         assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
+    }
+
+    @Test
+    public void noCorrelationId() throws Exception {
+        // given
+
+        // when
+        TextMessage actual = exchangeMessage(null, "Hello");
+
+        // then
+        assertThat(actual.getText()).isEqualTo("Hello back to you!");
+        assertThat(actual.getJMSCorrelationID()).isNotNull();
     }
 
     @Test

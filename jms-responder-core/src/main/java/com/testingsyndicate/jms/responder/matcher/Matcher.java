@@ -3,7 +3,7 @@ package com.testingsyndicate.jms.responder.matcher;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.Request;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
               include = JsonTypeInfo.As.PROPERTY,
@@ -19,6 +19,6 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
 )
 public interface Matcher {
 
-    boolean matches(RequestInfo requestInfo);
+    boolean matches(Request request);
 
 }

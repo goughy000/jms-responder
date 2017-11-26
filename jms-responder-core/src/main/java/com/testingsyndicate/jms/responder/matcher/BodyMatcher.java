@@ -3,7 +3,7 @@ package com.testingsyndicate.jms.responder.matcher;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.testingsyndicate.jms.responder.model.BodySource;
-import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.Request;
 
 import java.util.Objects;
 
@@ -22,8 +22,8 @@ public final class BodyMatcher implements Matcher {
         }
     }
 
-    public boolean matches(RequestInfo requestInfo) {
-        String requestBody = requestInfo.getBody();
+    public boolean matches(Request request) {
+        String requestBody = request.getBody();
 
         if (null != requestBody && trim) {
             requestBody = requestBody.trim();

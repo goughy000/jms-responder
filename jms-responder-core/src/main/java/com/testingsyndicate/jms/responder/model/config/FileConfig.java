@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.testingsyndicate.jms.responder.model.BodySource;
-import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
+import com.testingsyndicate.jms.responder.model.MatchableResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +16,12 @@ public final class FileConfig {
 
     private final ConnectionFactoryConfig connectionFactory;
     private final List<String> queues;
-    private final List<MatchableStubbedResponse> stubs;
+    private final List<MatchableResponse> stubs;
 
     @JsonCreator
     public FileConfig(@JsonProperty("connectionFactory") ConnectionFactoryConfig connectionFactory,
                       @JsonProperty("queues") List<String> queues,
-                      @JsonProperty("stubs") List<MatchableStubbedResponse> stubs) {
+                      @JsonProperty("stubs") List<MatchableResponse> stubs) {
         this.connectionFactory = connectionFactory;
         this.queues = queues;
         this.stubs = stubs;
@@ -35,7 +35,7 @@ public final class FileConfig {
         return queues;
     }
 
-    public List<MatchableStubbedResponse> getStubs() {
+    public List<MatchableResponse> getStubs() {
         return stubs;
     }
 

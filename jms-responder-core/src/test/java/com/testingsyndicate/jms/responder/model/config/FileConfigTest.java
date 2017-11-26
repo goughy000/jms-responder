@@ -3,7 +3,7 @@ package com.testingsyndicate.jms.responder.model.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.testingsyndicate.jms.responder.matcher.BodyMatcher;
-import com.testingsyndicate.jms.responder.model.MatchableStubbedResponse;
+import com.testingsyndicate.jms.responder.model.MatchableResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class FileConfigTest {
         // then
         assertThat(actual.getQueues()).containsExactly("INBOUND.QUEUE");
         assertThat(actual.getStubs()).hasSize(1);
-        MatchableStubbedResponse response = actual.getStubs().get(0);
+        MatchableResponse response = actual.getStubs().get(0);
         assertThat(response.getDescription()).isEqualTo("a description");
         assertThat(response.getBody()).isEqualTo("this is the reply body");
         assertThat(response.getDelay()).isEqualTo(1);

@@ -3,7 +3,7 @@ package com.testingsyndicate.jms.responder.matcher;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.testingsyndicate.jms.responder.model.BodySource;
-import com.testingsyndicate.jms.responder.model.RequestInfo;
+import com.testingsyndicate.jms.responder.model.Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Objects;
 
-public class XmlMatcher implements Matcher {
+public final class XmlMatcher implements Matcher {
 
     private static final DOMImplementationLS DOM;
     private static final DocumentBuilderFactory DBF;
@@ -46,8 +46,8 @@ public class XmlMatcher implements Matcher {
     }
 
     @Override
-    public boolean matches(RequestInfo requestInfo) {
-        String requestBody = requestInfo.getBody();
+    public boolean matches(Request request) {
+        String requestBody = request.getBody();
         return Objects.equals(body, requestBody)
                 || Objects.equals(prettyBody, prettyPrint(requestBody));
     }
