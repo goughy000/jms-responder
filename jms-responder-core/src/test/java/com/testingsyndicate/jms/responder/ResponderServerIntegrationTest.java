@@ -14,12 +14,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponderServerIntegrationTest {
 
-    private static Connection connection;
-    private static Session session;
-    private static MessageProducer producer;
-    private static MessageConsumer consumer;
-    private static Destination sendTo;
-    private static Destination replyTo;
+    private static ConnectionFactory connectionFactory;
+    private Connection connection;
+    private Session session;
+    private MessageProducer producer;
+    private MessageConsumer consumer;
+    private Destination sendTo;
+    private Destination replyTo;
 
     private ResponderServer sut;
 
@@ -27,8 +28,12 @@ public class ResponderServerIntegrationTest {
     public static EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
 
     @BeforeClass
-    public static void setUp() throws JMSException {
-        ConnectionFactory connectionFactory = broker.createConnectionFactory();
+    public static void setUp() {
+        connectionFactory = broker.createConnectionFactory();
+    }
+
+    @Before
+    public void before() throws Exception {
         connection = connectionFactory.createConnection();
         connection.start();
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -38,10 +43,7 @@ public class ResponderServerIntegrationTest {
 
         producer = session.createProducer(sendTo);
         consumer = session.createConsumer(replyTo);
-    }
 
-    @Before
-    public void before() throws Exception {
         File config = fixture("integration.yaml");
         sut = ResponderServer.fromConfig(FileConfig.fromFile(config));
         sut.start();
@@ -49,11 +51,6 @@ public class ResponderServerIntegrationTest {
 
     @After
     public void after() throws Exception {
-        sut.close();
-    }
-
-    @AfterClass
-    public static void tearDown() throws JMSException {
         if (null != consumer) {
             consumer.close();
         }
@@ -69,6 +66,8 @@ public class ResponderServerIntegrationTest {
         if (null != connection) {
             connection.close();
         }
+
+        sut.close();
     }
 
     @Test
@@ -148,7 +147,7 @@ public class ResponderServerIntegrationTest {
         assertThat(actual.getJMSCorrelationID()).isEqualTo(correlationId);
     }
 
-    private static TextMessage exchangeMessage(String correlationId, String text) throws JMSException {
+    private TextMessage exchangeMessage(String correlationId, String text) throws JMSException {
         // Send
         TextMessage request = session.createTextMessage(text);
         request.setJMSDestination(sendTo);
