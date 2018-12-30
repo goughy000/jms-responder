@@ -7,6 +7,7 @@ import org.junit.*;
 
 import javax.jms.*;
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,7 +161,11 @@ public class ResponderServerIntegrationTest {
     }
 
     private static File fixture(String path) {
-        return new File(FileConfigTest.class.getClassLoader().getResource("fixtures/" + path).getFile());
+        try {
+            return new File(FileConfigTest.class.getClassLoader().getResource("fixtures/" + path).toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Unable to load test fixture", e);
+        }
     }
 
 }
