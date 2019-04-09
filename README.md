@@ -90,11 +90,14 @@ JMS Responder can be kick started from a config file along the lines of this:
 # JMS ConnectionFactory Config
 connectionFactory:
   # ConnectionFactory class, will need to be on the class path
-  class: org.apache.activemq.ActiveMQConnectionFactory
+  class: org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
+  # Array of arguments to pass to ConnectionFactory constructor
+  arguments:
+    - vm://0
   # a set of properties to set on the ConnectionFactory
   properties:
-    # e.g. this will call .setBrokerURL("vm://...")
-    brokerURL: vm://embedded-broker?create=false
+    # e.g. this will call .setWibble("wobble")
+    wibble: wobble
 
 # a list of queues to listen on
 queues:

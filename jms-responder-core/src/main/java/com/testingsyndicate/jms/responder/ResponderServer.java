@@ -12,6 +12,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,10 +90,24 @@ public final class ResponderServer implements AutoCloseable {
         ConnectionFactoryConfig cfc = config.getConnectionFactory();
         Class clazz = Class.forName(cfc.getClazz());
         LOG.info("Initializing {}", clazz);
-        ConnectionFactory connectionFactory = (ConnectionFactory) clazz.newInstance();
-        for (Map.Entry<String, String> prop : cfc.getProperties().entrySet()) {
-            LOG.info("Setting {}", prop.getKey());
-            BeanUtils.setProperty(connectionFactory, prop.getKey(), prop.getValue());
+
+        List<Class<?>> types = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+        if (null != cfc.getArguments()) {
+            for (Object value : cfc.getArguments()) {
+                types.add(value.getClass());
+                values.add(value);
+            }
+        }
+
+        Constructor ctor = clazz.getConstructor(types.toArray(new Class[]{}));
+        ConnectionFactory connectionFactory = (ConnectionFactory) ctor.newInstance(values.toArray());
+
+        if (null != cfc.getProperties()) {
+            for (Map.Entry<String, String> prop : cfc.getProperties().entrySet()) {
+                LOG.debug("Setting {} : {}", prop.getKey(), prop.getValue());
+                BeanUtils.setProperty(connectionFactory, prop.getKey(), prop.getValue());
+            }
         }
 
         return newBuilder()

@@ -1,8 +1,11 @@
 ---
 connectionFactory:
-  class: org.apache.activemq.ActiveMQConnectionFactory
+  class: my.class
+  arguments:
+    - arg0
+    - 4
   properties:
-    brokerURL: vm://embedded-broker?create=false
+    wibble: wobble
 
 queues:
   - INBOUND.QUEUE
