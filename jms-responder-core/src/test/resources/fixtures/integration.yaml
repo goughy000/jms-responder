@@ -1,8 +1,8 @@
 ---
 connectionFactory:
-  class: org.apache.activemq.ActiveMQConnectionFactory
-  properties:
-    brokerURL: vm://embedded-broker?create=false
+  class: org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
+  arguments:
+    - vm://0
 
 queues:
   - INBOUND.QUEUE

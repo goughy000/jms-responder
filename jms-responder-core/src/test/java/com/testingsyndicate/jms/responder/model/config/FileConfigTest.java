@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class FileConfigTest {
 
@@ -30,6 +31,9 @@ public class FileConfigTest {
         FileConfig actual = mapper.readValue(is, FileConfig.class);
 
         // then
+        assertThat(actual.getConnectionFactory().getClazz()).isEqualTo("my.class");
+        assertThat(actual.getConnectionFactory().getArguments()).containsExactly("arg0", 4);
+        assertThat(actual.getConnectionFactory().getProperties()).containsExactly(entry("wibble", "wobble"));
         assertThat(actual.getQueues()).containsExactly("INBOUND.QUEUE");
         assertThat(actual.getStubs()).hasSize(1);
         MatchableResponse response = actual.getStubs().get(0);

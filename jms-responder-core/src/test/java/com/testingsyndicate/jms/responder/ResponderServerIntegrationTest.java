@@ -2,8 +2,15 @@ package com.testingsyndicate.jms.responder;
 
 import com.testingsyndicate.jms.responder.model.config.FileConfig;
 import com.testingsyndicate.jms.responder.model.config.FileConfigTest;
-import org.apache.activemq.junit.EmbeddedActiveMQBroker;
-import org.junit.*;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import javax.jms.*;
 import java.io.File;
@@ -24,12 +31,17 @@ public class ResponderServerIntegrationTest {
 
     private ResponderServer sut;
 
-    @ClassRule
-    public static EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
-
     @BeforeClass
-    public static void setUp() {
-        connectionFactory = broker.createConnectionFactory();
+    public static void setUp() throws Exception {
+        Configuration inMemoryMQConfiguration = new ConfigurationImpl()
+            .setPersistenceEnabled(false)
+            .setJournalDirectory("target/data/journal")
+            .setSecurityEnabled(false)
+            .addAcceptorConfiguration("invm", "vm://0");
+        ActiveMQServer server = ActiveMQServers.newActiveMQServer(inMemoryMQConfiguration);
+        server.start();
+
+        connectionFactory = new ActiveMQConnectionFactory("vm://0");
     }
 
     @Before
