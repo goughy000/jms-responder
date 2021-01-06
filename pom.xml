@@ -42,7 +42,7 @@
         <assertj.version>3.8.0</assertj.version>
         <mockito.version>2.8.47</mockito.version>
         <jackson.version>2.9.1</jackson.version>
-        <beanutils.version>1.9.3</beanutils.version>
+        <beanutils.version>1.9.4</beanutils.version>
     </properties>
 
     <dependencyManagement>
