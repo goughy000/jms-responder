@@ -34,6 +34,7 @@ public class FileConfigTest {
         assertThat(actual.getConnectionFactory().getClazz()).isEqualTo("my.class");
         assertThat(actual.getConnectionFactory().getArguments()).containsExactly("arg0", 4);
         assertThat(actual.getConnectionFactory().getProperties()).containsExactly(entry("wibble", "wobble"));
+        assertThat(actual.getThreads()).isEqualTo(2);
         assertThat(actual.getQueues()).containsExactly("INBOUND.QUEUE");
         assertThat(actual.getStubs()).hasSize(1);
         MatchableResponse response = actual.getStubs().get(0);

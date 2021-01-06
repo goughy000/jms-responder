@@ -103,6 +103,9 @@ connectionFactory:
 queues:
   - INBOUND.QUEUE
 
+# number of threads to listen to each queue
+threads: 1
+
 # a list of MatchableResponses
 stubs:
   # Description is just used in logs

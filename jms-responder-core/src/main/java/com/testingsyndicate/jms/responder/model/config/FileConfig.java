@@ -17,14 +17,17 @@ public final class FileConfig {
     private final ConnectionFactoryConfig connectionFactory;
     private final List<String> queues;
     private final List<MatchableResponse> stubs;
+    private final int threads;
 
     @JsonCreator
     public FileConfig(@JsonProperty("connectionFactory") ConnectionFactoryConfig connectionFactory,
                       @JsonProperty("queues") List<String> queues,
-                      @JsonProperty("stubs") List<MatchableResponse> stubs) {
+                      @JsonProperty("stubs") List<MatchableResponse> stubs,
+                      @JsonProperty("threads") int threads) {
         this.connectionFactory = connectionFactory;
         this.queues = queues;
         this.stubs = stubs;
+        this.threads = threads;
     }
 
     public ConnectionFactoryConfig getConnectionFactory() {
@@ -37,6 +40,10 @@ public final class FileConfig {
 
     public List<MatchableResponse> getStubs() {
         return stubs;
+    }
+
+    public int getThreads() {
+        return threads;
     }
 
     public static FileConfig fromFile(String path) throws IOException {

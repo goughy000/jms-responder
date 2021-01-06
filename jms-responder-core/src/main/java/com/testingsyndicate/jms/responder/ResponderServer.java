@@ -28,6 +28,7 @@ public final class ResponderServer implements AutoCloseable {
     private final ResponseRepository repository;
     private final ExecutorService executor;
     private final List<Session> sessions;
+    private final int threads;
 
     private Connection connection;
 
@@ -37,6 +38,7 @@ public final class ResponderServer implements AutoCloseable {
         connectionFactory = builder.connectionFactory;
         queueNames = builder.queueNames;
         repository = builder.repository;
+        threads = Math.max(builder.threads, 1);
 
         if (null == builder.executor) {
             executor = Executors.newCachedThreadPool();
@@ -56,9 +58,11 @@ public final class ResponderServer implements AutoCloseable {
                 connection = connectionFactory.createConnection();
                 connection.start();
                 for (String queueName : queueNames) {
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    sessions.add(session);
-                    executor.execute(new MessageHandler(session, queueName, repository));
+                    for (int i = 0; i < threads; i++) {
+                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                        sessions.add(session);
+                        executor.execute(new MessageHandler(session, queueName, repository));
+                    }
                 }
             } catch (JMSException ex) {
                 throw new RuntimeException("Error on startup", ex);
@@ -88,7 +92,7 @@ public final class ResponderServer implements AutoCloseable {
 
     public static ResponderServer fromConfig(FileConfig config) throws Exception {
         ConnectionFactoryConfig cfc = config.getConnectionFactory();
-        Class clazz = Class.forName(cfc.getClazz());
+        Class<?> clazz = Class.forName(cfc.getClazz());
         LOG.info("Initializing {}", clazz);
 
         List<Class<?>> types = new ArrayList<>();
@@ -100,7 +104,7 @@ public final class ResponderServer implements AutoCloseable {
             }
         }
 
-        Constructor ctor = clazz.getConstructor(types.toArray(new Class[]{}));
+        Constructor<?> ctor = clazz.getConstructor(types.toArray(new Class[]{}));
         ConnectionFactory connectionFactory = (ConnectionFactory) ctor.newInstance(values.toArray());
 
         if (null != cfc.getProperties()) {
@@ -122,8 +126,9 @@ public final class ResponderServer implements AutoCloseable {
     }
 
     public static final class Builder {
+        private final List<String> queueNames;
+        private int threads;
         private ConnectionFactory connectionFactory;
-        private List<String> queueNames;
         private ResponseRepository repository;
         private ExecutorService executor;
 
@@ -156,9 +161,13 @@ public final class ResponderServer implements AutoCloseable {
             return this;
         }
 
+        public Builder withThreads(int threads) {
+            this.threads = threads;
+            return this;
+        }
+
         public ResponderServer build() {
             return new ResponderServer(this);
         }
     }
-
 }
