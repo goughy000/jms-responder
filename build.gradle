@@ -4,6 +4,7 @@ plugins {
   id 'signing'
   id 'io.toolebox.git-versioner' version '1.6.5'
   id 'com.liferay.maven.plugin.builder' version '1.2.8' apply false
+  id 'com.diffplug.spotless' version '5.11.0' apply false
 }
 
 dependencies {
@@ -23,6 +24,7 @@ allprojects {
   apply plugin: 'java-library'
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
+  apply plugin: 'com.diffplug.spotless'
 
   group 'com.testingsyndicate'
 
@@ -33,6 +35,18 @@ allprojects {
   java {
     withJavadocJar()
     withSourcesJar()
+  }
+
+  spotless {
+    java {
+      googleJavaFormat()
+      endWithNewline()
+    }
+    groovyGradle {
+      greclipse()
+      indentWithSpaces(2)
+      endWithNewline()
+    }
   }
 
   versioner {
