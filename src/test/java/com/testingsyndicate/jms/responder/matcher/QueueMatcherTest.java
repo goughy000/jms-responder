@@ -3,12 +3,12 @@ package com.testingsyndicate.jms.responder.matcher;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class QueueMatcherTest {
+class QueueMatcherTest {
 
   @Test
-  public void matchesWhenEqual() {
+  void matchesWhenEqual() {
     // given
     QueueMatcher sut = new QueueMatcher("wibble");
 
@@ -22,7 +22,7 @@ public class QueueMatcherTest {
   }
 
   @Test
-  public void doesntMatchWhenDifferent() {
+  void doesntMatchWhenDifferent() {
     // Given
     QueueMatcher sut = new QueueMatcher("wibble");
     RequestInfo requestInfo = requestInfoWithQueue("wobble");
@@ -35,7 +35,7 @@ public class QueueMatcherTest {
   }
 
   @Test
-  public void matchesNulls() {
+  void matchesNulls() {
     // Given
     QueueMatcher sut = new QueueMatcher(null);
     RequestInfo requestInfo = requestInfoWithQueue(null);
