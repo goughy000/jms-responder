@@ -2,10 +2,9 @@ package com.testingsyndicate.jms.responder.model;
 
 public interface Request {
 
-    String getBody();
+  String getBody();
 
-    String getQueueName();
+  String getQueueName();
 
-    String getCorrelationId();
-
+  String getCorrelationId();
 }

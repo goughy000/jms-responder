@@ -2,10 +2,9 @@ package com.testingsyndicate.jms.responder.model;
 
 public interface Response {
 
-    String getBody();
+  String getBody();
 
-    int getDelay();
+  int getDelay();
 
-    String getDescription();
-
+  String getDescription();
 }

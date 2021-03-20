@@ -1,15 +1,14 @@
 package com.testingsyndicate.jms.responder;
 
-import com.testingsyndicate.jms.responder.ResponderServer.Builder;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.*;
 
+import com.testingsyndicate.jms.responder.ResponderServer.Builder;
+import java.util.concurrent.ExecutorService;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-import java.util.concurrent.ExecutorService;
-
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ResponderServerTest {
 
@@ -31,11 +30,12 @@ public class ResponderServerTest {
     when(mockConnectionFactory.createConnection()).thenReturn(mockConnection);
     when(mockConnection.createSession(anyBoolean(), anyInt())).thenReturn(mockSession);
 
-    builder = ResponderServer.newBuilder()
-        .withThreads(4)
-        .withConnectionFactory(mockConnectionFactory)
-        .withExecutor(mockExecutor)
-        .withQueueName("bla");
+    builder =
+        ResponderServer.newBuilder()
+            .withThreads(4)
+            .withConnectionFactory(mockConnectionFactory)
+            .withExecutor(mockExecutor)
+            .withQueueName("bla");
 
     sut = builder.build();
   }
