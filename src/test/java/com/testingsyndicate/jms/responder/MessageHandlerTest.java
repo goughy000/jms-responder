@@ -9,11 +9,11 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
 import com.testingsyndicate.jms.responder.repository.ResponseRepository;
 import java.util.Optional;
 import javax.jms.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-public class MessageHandlerTest {
+class MessageHandlerTest {
 
   private ResponseRepository mockRepo;
   private TextMessage mockMessage;
@@ -25,8 +25,8 @@ public class MessageHandlerTest {
 
   private MessageHandler sut;
 
-  @Before
-  public void setup() throws JMSException {
+  @BeforeEach
+  void beforeEach() throws JMSException {
     mockSession = mock(Session.class);
     mockRepo = mock(ResponseRepository.class);
     mockDestination = mock(Queue.class);
@@ -46,7 +46,7 @@ public class MessageHandlerTest {
   }
 
   @Test
-  public void findsMatchFromRepo() throws JMSException {
+  void findsMatchFromRepo() throws JMSException {
     // given
     ArgumentCaptor<RequestInfo> captor = ArgumentCaptor.forClass(RequestInfo.class);
     when(mockMessage.getText()).thenReturn("wibble");
@@ -65,7 +65,7 @@ public class MessageHandlerTest {
   }
 
   @Test
-  public void sendsReplyToReplyTo() throws JMSException {
+  void sendsReplyToReplyTo() throws JMSException {
     // given
 
     // when
@@ -80,7 +80,7 @@ public class MessageHandlerTest {
   }
 
   @Test
-  public void usesMessageIdIfNoCorrelationId() throws JMSException {
+  void usesMessageIdIfNoCorrelationId() throws JMSException {
     // given
     when(mockMessage.getJMSCorrelationID()).thenReturn(null);
     when(mockMessage.getJMSMessageID()).thenReturn("jms-msg-id");
@@ -93,7 +93,7 @@ public class MessageHandlerTest {
   }
 
   @Test
-  public void doesntReplyIfNoMatch() throws JMSException {
+  void doesntReplyIfNoMatch() throws JMSException {
     // given
     when(mockRepo.findResponse(any(RequestInfo.class))).thenReturn(Optional.empty());
 
@@ -105,7 +105,7 @@ public class MessageHandlerTest {
   }
 
   @Test
-  public void doesntReplyIfNoReplyQueue() throws JMSException {
+  void doesntReplyIfNoReplyQueue() throws JMSException {
     // given
     when(mockMessage.getJMSReplyTo()).thenReturn(null);
 

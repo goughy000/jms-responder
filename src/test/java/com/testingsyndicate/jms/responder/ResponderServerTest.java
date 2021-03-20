@@ -7,10 +7,10 @@ import java.util.concurrent.ExecutorService;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ResponderServerTest {
+class ResponderServerTest {
 
   private ConnectionFactory mockConnectionFactory;
   private Connection mockConnection;
@@ -20,8 +20,8 @@ public class ResponderServerTest {
   private Builder builder;
   private ResponderServer sut;
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void beforeEach() throws Exception {
     mockConnectionFactory = mock(ConnectionFactory.class);
     mockExecutor = mock(ExecutorService.class);
     mockConnection = mock(Connection.class);
@@ -41,7 +41,7 @@ public class ResponderServerTest {
   }
 
   @Test
-  public void submitsOneTaskWhenZeroThreads() {
+  void submitsOneTaskWhenZeroThreads() {
     // given
     builder.withThreads(0);
     sut = builder.build();
@@ -54,7 +54,7 @@ public class ResponderServerTest {
   }
 
   @Test
-  public void submitsMultipleTasksWhenMultipleThreads() {
+  void submitsMultipleTasksWhenMultipleThreads() {
     // given
     builder.withThreads(10);
     sut = builder.build();

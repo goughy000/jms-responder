@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BodyMatcherTest {
+class BodyMatcherTest {
 
   @Test
-  public void matchesWhenEqual() {
+  void matchesWhenEqual() {
     // given
     BodyMatcher sut = bodyMatcher("wibble", false);
 
@@ -23,7 +23,7 @@ public class BodyMatcherTest {
   }
 
   @Test
-  public void doesntMatchWhenDifferent() {
+  void doesntMatchWhenDifferent() {
     // given
     BodyMatcher sut = bodyMatcher("wibble", false);
     RequestInfo requestInfo = requestInfoWithBody("wobble");
@@ -36,7 +36,7 @@ public class BodyMatcherTest {
   }
 
   @Test
-  public void matchesNulls() {
+  void matchesNulls() {
     // given
     BodyMatcher sut = bodyMatcher(null, false);
     RequestInfo requestInfo = requestInfoWithBody(null);
@@ -49,7 +49,7 @@ public class BodyMatcherTest {
   }
 
   @Test
-  public void matchesWhenTrimmed() {
+  void matchesWhenTrimmed() {
     // given
     BodyMatcher sut = bodyMatcher("hi", true);
     RequestInfo requestInfo = requestInfoWithBody("  hi   ");

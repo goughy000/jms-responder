@@ -11,17 +11,17 @@ import com.testingsyndicate.jms.responder.model.RequestInfo;
 import com.testingsyndicate.jms.responder.model.Response;
 import java.util.Arrays;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class FixedResponseRepositoryTest {
+class FixedResponseRepositoryTest {
 
   private Matcher falseMatcher;
   private Matcher trueMatcher;
   private RequestInfo dummyRequestInfo;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void beforeEach() {
     falseMatcher = mock(Matcher.class);
     trueMatcher = mock(Matcher.class);
 
@@ -32,7 +32,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void returnsEmptyWhenNoMatches() {
+  void returnsEmptyWhenNoMatches() {
     // given
     ResponseRepository sut = repo(response(falseMatcher));
 
@@ -44,7 +44,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void returnsStubWhenAllMatch() {
+  void returnsStubWhenAllMatch() {
     // given
     MatchableResponse response = response(trueMatcher);
     ResponseRepository sut = repo(response);
@@ -57,7 +57,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void returnsEmptyWhenPartialMatch() {
+  void returnsEmptyWhenPartialMatch() {
     // given
     ResponseRepository sut = repo(response(trueMatcher, falseMatcher));
 
@@ -69,7 +69,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void shortCircuitsWhenPartialMatch() {
+  void shortCircuitsWhenPartialMatch() {
     // given
     ResponseRepository sut = repo(response(falseMatcher, trueMatcher));
 
@@ -83,7 +83,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void returnsSecondStubIfMatch() {
+  void returnsSecondStubIfMatch() {
     // given
     MatchableResponse response = response(trueMatcher);
     ResponseRepository sut = repo(response(falseMatcher), response);
@@ -96,7 +96,7 @@ public class FixedResponseRepositoryTest {
   }
 
   @Test
-  public void returnsResponseIfEmptyMatchers() {
+  void returnsResponseIfEmptyMatchers() {
     // given
     MatchableResponse response = response();
     ResponseRepository sut = repo(response);

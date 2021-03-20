@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.testingsyndicate.jms.responder.model.BodySource;
 import com.testingsyndicate.jms.responder.model.RequestInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class XmlMatcherTest {
+class XmlMatcherTest {
 
   @Test
-  public void matchesBinaryEqualXml() {
+  void matchesBinaryEqualXml() {
     // given
     XmlMatcher sut = xmlMatcher("<xml></xml>");
 
@@ -21,7 +21,7 @@ public class XmlMatcherTest {
   }
 
   @Test
-  public void doesntMatchUnequalXml() {
+  void doesntMatchUnequalXml() {
     // given
     XmlMatcher sut = xmlMatcher("<xml>1</xml>");
 
@@ -33,7 +33,7 @@ public class XmlMatcherTest {
   }
 
   @Test
-  public void matchesEquivalentXml() {
+  void matchesEquivalentXml() {
     // given
     XmlMatcher sut = xmlMatcher("<xml><one /><two /></xml>");
 
@@ -45,7 +45,7 @@ public class XmlMatcherTest {
   }
 
   @Test
-  public void cannotInitWithInvalidXml() {
+  void cannotInitWithInvalidXml() {
     // given
     String invalidXml = "wibble";
 
@@ -59,7 +59,7 @@ public class XmlMatcherTest {
   }
 
   @Test
-  public void falseWhenInvalidXml() {
+  void falseWhenInvalidXml() {
     // given
     XmlMatcher sut = xmlMatcher("<xml></xml>");
     String invalidXml = "wibble";

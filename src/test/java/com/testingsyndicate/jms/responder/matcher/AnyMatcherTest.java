@@ -5,16 +5,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class AnyMatcherTest {
+class AnyMatcherTest {
 
   private Matcher falseMatcher;
   private Matcher trueMatcher;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void beforeEach() {
     falseMatcher = mock(Matcher.class);
     trueMatcher = mock(Matcher.class);
 
@@ -23,7 +23,7 @@ public class AnyMatcherTest {
   }
 
   @Test
-  public void matchesWhenTrue() {
+  void matchesWhenTrue() {
     // given
     AnyMatcher sut = new AnyMatcher(trueMatcher);
 
@@ -35,7 +35,7 @@ public class AnyMatcherTest {
   }
 
   @Test
-  public void doesntMatchWhenFalse() {
+  void doesntMatchWhenFalse() {
     // given
     AnyMatcher sut = new AnyMatcher(falseMatcher);
 
@@ -47,7 +47,7 @@ public class AnyMatcherTest {
   }
 
   @Test
-  public void matchesWhenAllTrue() {
+  void matchesWhenAllTrue() {
     // given
     AnyMatcher sut = new AnyMatcher(trueMatcher, trueMatcher);
 
@@ -59,7 +59,7 @@ public class AnyMatcherTest {
   }
 
   @Test
-  public void matchesWhenOneTrue() {
+  void matchesWhenOneTrue() {
     // given
     AnyMatcher sut = new AnyMatcher(falseMatcher, falseMatcher, trueMatcher);
 

@@ -9,20 +9,20 @@ import com.testingsyndicate.jms.responder.matcher.BodyMatcher;
 import com.testingsyndicate.jms.responder.model.MatchableResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class FileConfigTest {
+class FileConfigTest {
 
   ObjectMapper mapper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void beforeEach() {
     mapper = new ObjectMapper(new YAMLFactory());
   }
 
   @Test
-  public void loadsYaml() throws IOException {
+  void loadsYaml() throws IOException {
     // given
     InputStream is = fixture("config.yaml");
 

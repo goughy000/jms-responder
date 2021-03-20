@@ -3,7 +3,6 @@ package com.testingsyndicate.jms.responder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.testingsyndicate.jms.responder.model.config.FileConfig;
-import com.testingsyndicate.jms.responder.model.config.FileConfigTest;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -13,12 +12,12 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ResponderServerIntegrationTest {
+class ResponderServerIntegrationTest {
 
   private static ConnectionFactory connectionFactory;
   private Connection connection;
@@ -30,8 +29,8 @@ public class ResponderServerIntegrationTest {
 
   private ResponderServer sut;
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @BeforeAll
+  static void beforeAll() throws Exception {
     Configuration inMemoryMQConfiguration =
         new ConfigurationImpl()
             .setPersistenceEnabled(false)
@@ -44,8 +43,8 @@ public class ResponderServerIntegrationTest {
     connectionFactory = new ActiveMQConnectionFactory("vm://0");
   }
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void beforeEach() throws Exception {
     connection = connectionFactory.createConnection();
     connection.start();
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -61,8 +60,8 @@ public class ResponderServerIntegrationTest {
     sut.start();
   }
 
-  @After
-  public void after() throws Exception {
+  @AfterEach
+  void afterEach() throws Exception {
     if (null != consumer) {
       consumer.close();
     }
@@ -83,7 +82,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void simpleBodyMatch() throws Exception {
+  void simpleBodyMatch() throws Exception {
     // given
     String correlationId = UUID.randomUUID().toString();
 
@@ -96,7 +95,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void noCorrelationId() throws Exception {
+  void noCorrelationId() throws Exception {
     // given
 
     // when
@@ -108,7 +107,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void missesFirstStubToMatchSecond() throws Exception {
+  void missesFirstStubToMatchSecond() throws Exception {
     // given
     String correlationId = UUID.randomUUID().toString();
 
@@ -121,7 +120,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void matchesOnBodyAndQueue() throws Exception {
+  void matchesOnBodyAndQueue() throws Exception {
     // given
     String correlationId = UUID.randomUUID().toString();
 
@@ -134,7 +133,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void matchesOnBodyXml() throws Exception {
+  void matchesOnBodyXml() throws Exception {
     // given
     String correlationId = UUID.randomUUID().toString();
 
@@ -147,7 +146,7 @@ public class ResponderServerIntegrationTest {
   }
 
   @Test
-  public void fallsBackToDefault() throws Exception {
+  void fallsBackToDefault() throws Exception {
     // given
     String correlationId = UUID.randomUUID().toString();
 
@@ -174,7 +173,10 @@ public class ResponderServerIntegrationTest {
   private static File fixture(String path) {
     try {
       return new File(
-          FileConfigTest.class.getClassLoader().getResource("fixtures/" + path).toURI());
+          ResponderServerIntegrationTest.class
+              .getClassLoader()
+              .getResource("fixtures/" + path)
+              .toURI());
     } catch (URISyntaxException e) {
       throw new RuntimeException("Unable to load test fixture", e);
     }
