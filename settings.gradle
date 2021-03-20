@@ -1,0 +1,3 @@
+rootProject.name = 'jms-responder-core'
+
+include 'jms-responder-maven-plugin'
