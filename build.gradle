@@ -2,7 +2,7 @@ plugins {
   id 'java-library'
   id 'maven-publish'
   id 'signing'
-  id 'io.toolebox.git-versioner' version '1.6.5'
+  id 'io.toolebox.git-versioner' version '1.6.5' apply false
   id 'com.liferay.maven.plugin.builder' version '1.2.8' apply false
   id 'com.diffplug.spotless' version '5.11.0' apply false
 }
@@ -24,6 +24,7 @@ allprojects {
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
   apply plugin: 'com.diffplug.spotless'
+  apply plugin: 'io.toolebox.git-versioner'
 
   group 'com.testingsyndicate'
 
@@ -125,7 +126,12 @@ project(':jms-responder-maven-plugin') {
     goalPrefix = 'jms-responder'
     pomGroupId = project.group
     pomArtifactId = project.name
-    pomVersion = project.version
+  }
+
+  afterEvaluate {
+    buildPluginDescriptor {
+      pomVersion = project.version
+    }
   }
 
   publishing.publications.mavenJava.pom.packaging = 'maven-plugin'
