@@ -1,26 +1,24 @@
 plugins {
   id 'java-library'
+  id 'jvm-test-suite'
   id 'maven-publish'
   id 'signing'
   id 'io.toolebox.git-versioner' version '1.6.5' apply false
-  id 'com.liferay.maven.plugin.builder' version '1.2.8' apply false
-  id 'com.diffplug.spotless' version '5.11.0' apply false
+  id 'com.liferay.maven.plugin.builder' version '2.0.2' apply false
+  id 'com.diffplug.spotless' version '6.22.0' apply false
 }
 
 dependencies {
   compileOnly 'javax.jms:javax.jms-api:2.0'
-  implementation 'org.slf4j:slf4j-api:1.7.25'
-  implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
-  implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2'
+  implementation 'org.slf4j:slf4j-api:1.7.36'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
+  implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3'
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
-
-  testImplementation 'org.slf4j:slf4j-log4j12:1.7.25'
-  testImplementation 'org.apache.activemq:artemis-server:2.6.4'
-  testImplementation 'org.apache.activemq:artemis-jms-server:2.6.4'
 }
 
 allprojects {
   apply plugin: 'java-library'
+  apply plugin: 'jvm-test-suite'
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
   apply plugin: 'com.diffplug.spotless'
@@ -37,8 +35,21 @@ allprojects {
     withSourcesJar()
   }
 
-  test {
-    useJUnitPlatform()
+  testing {
+    suites {
+      test {
+        useJUnitJupiter()
+        dependencies {
+          implementation 'org.slf4j:slf4j-log4j12:1.7.36'
+          implementation 'org.apache.activemq:artemis-server:2.31.2'
+          implementation 'org.apache.activemq:artemis-jms-server:2.31.2'
+          implementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+          implementation 'org.assertj:assertj-core:3.24.2'
+          implementation 'org.mockito:mockito-core:5.7.0'
+          runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+        }
+      }
+    }
   }
 
   spotless {
@@ -47,7 +58,7 @@ allprojects {
       endWithNewline()
     }
     groovyGradle {
-      greclipse()
+      greclipse('4.27')
       indentWithSpaces(2)
       endWithNewline()
     }
@@ -58,13 +69,6 @@ allprojects {
       major = 2
       minor = 1
     }
-  }
-
-  dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-    testImplementation 'org.assertj:assertj-core:3.19.0'
-    testImplementation 'org.mockito:mockito-core:3.8.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
   }
 
   publishing {
@@ -118,14 +122,16 @@ project(':jms-responder-maven-plugin') {
 
   dependencies {
     implementation project(':')
-    api 'org.apache.maven:maven-plugin-api:3.3.9'
-    api 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.5'
+    api 'org.apache.maven:maven-plugin-api:3.9.5'
+    api 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.10.2'
   }
 
   buildPluginDescriptor {
     goalPrefix = 'jms-responder'
     pomGroupId = project.group
     pomArtifactId = project.name
+    classesDir = sourceSets.main.java.classesDirectory
+    mavenPluginPluginVersion = '3.9.0'
   }
 
   afterEvaluate {
@@ -137,6 +143,7 @@ project(':jms-responder-maven-plugin') {
   publishing.publications.mavenJava.pom.packaging = 'maven-plugin'
 
   processResources.dependsOn('buildPluginDescriptor')
+  sourcesJar.dependsOn('buildPluginDescriptor')
 }
 
 def decode(encoded) {
